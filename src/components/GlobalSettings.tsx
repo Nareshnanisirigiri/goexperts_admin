@@ -1,0 +1,678 @@
+import { motion } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { Save, Globe, Mail, Shield, Loader2, Coins, Link, Search, Trash2, BarChart3, Rocket, Upload, Image as LucideImage } from 'lucide-react';
+import { useSiteSettings } from '../context/SiteSettingsContext';
+import { toast } from 'sonner';
+import { Breadcrumb } from './Breadcrumb';
+import api from '../lib/api';
+
+interface GlobalSettingsProps {
+  onNavigate: (page: string) => void;
+}
+
+type Settings = {
+  site_name: string;
+  site_tagline: string;
+  site_logo: string;
+  header_logo: string;
+  footer_logo: string;
+  site_favicon: string;
+  contact_email: string;
+  contact_phone: string;
+  contact_address: string;
+  meta_title: string;
+  meta_description: string;
+  meta_keywords: string;
+  social_facebook: string;
+  social_twitter: string;
+  social_linkedin: string;
+  social_instagram: string;
+  social_github: string;
+  social_youtube: string;
+  footer_copyright: string;
+  commission_rate: number;
+  currency: string;
+  timezone: string;
+  maintenance_mode: boolean;
+  points_per_rupee: number;
+  points_signup_bonus: number;
+  home_stats: { label: string; value: number; suffix: string; icon: string }[];
+  trust_badges: string[];
+  startup_nda_template: string;
+  subscription_highlights: { label: string; enabled: boolean }[];
+  subscription_groups: { name: string; label: string; icon: string; description: string }[];
+  referral_reward_amount: number;
+  min_withdrawal_amount: number;
+};
+
+const defaultSettings: Settings = {
+  site_name: 'Go Experts', site_tagline: '', site_logo: '', header_logo: '', footer_logo: '', site_favicon: '',
+  contact_email: '', contact_phone: '', contact_address: '',
+  meta_title: '', meta_description: '', meta_keywords: '',
+  social_facebook: '', social_twitter: '', social_linkedin: '', social_instagram: '',
+  social_github: '', social_youtube: '',
+  footer_copyright: '© 2026 Go Experts. All rights reserved.',
+  commission_rate: 10, currency: 'INR', timezone: 'Asia/Kolkata',
+  maintenance_mode: false, points_per_rupee: 1, points_signup_bonus: 100,
+  home_stats: [],
+  trust_badges: [],
+  startup_nda_template: '',
+  subscription_highlights: [
+    { label: "No bidding system", enabled: true },
+    { label: "No commission charges", enabled: true },
+    { label: "Direct hiring and direct investor contact", enabled: true },
+    { label: "Yearly subscription model", enabled: true },
+    { label: "Admin email support included", enabled: true },
+    { label: "Private chat support between clients and freelancers", enabled: true },
+  ],
+  subscription_groups: [
+    { name: 'Freelancer Plans', label: 'Freelancer', icon: 'Briefcase', description: 'Built for professionals who want direct access to projects without losing earnings to commissions.' },
+    { name: 'Client Plans', label: 'Client', icon: 'Building2', description: 'Designed for businesses and hiring teams looking to connect directly with skilled freelancers.' },
+    { name: 'Start-Up Idea Creator Plans', label: 'Startup Creator', icon: 'Rocket', description: 'Perfect for founders who want to publish ideas, attract investors, and grow with subscription-based access.' },
+    { name: 'Investor Plans', label: 'Investor', icon: 'Users', description: 'Created for investors who want streamlined access to quality startup ideas.' },
+    { name: 'Combo Plan', label: 'Combo / All Access', icon: 'Layers', description: 'Full access to all platform features for multi-role users.' }
+  ],
+  referral_reward_amount: 50,
+  min_withdrawal_amount: 500
+};
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-[13px] font-bold text-gray-700 dark:text-gray-300 ml-0.5 uppercase tracking-wide opacity-80">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputCls = "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#262626]/50 focus:bg-white dark:focus:bg-[#262626] focus:outline-none focus:ring-4 focus:ring-[#F24C20]/10 focus:border-[#F24C20] text-sm transition-all text-gray-900 dark:text-white placeholder:text-gray-400";
+const selectCls = "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#262626]/50 focus:bg-white dark:focus:bg-[#262626] focus:outline-none focus:ring-4 focus:ring-[#F24C20]/10 focus:border-[#F24C20] text-sm transition-all text-gray-900 dark:text-white cursor-pointer";
+
+export function GlobalSettings({ onNavigate }: GlobalSettingsProps) {
+  const { refreshSettings } = useSiteSettings();
+  const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  useEffect(() => { fetchSettings(); }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/cms/settings');
+      if (res.data.success) setSettings({ ...defaultSettings, ...res.data.settings });
+    } catch {
+      toast.error('Failed to load site settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNDAUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nda', file);
+
+    try {
+      const res = await api.post('/cms/settings/nda-template', formData);
+      if (res.data.success) {
+        toast.success('NDA Template uploaded successfully!');
+        set('startup_nda_template', res.data.filePath);
+        refreshSettings();
+      }
+    } catch {
+      toast.error('Failed to upload NDA template');
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('site_logo', file);
+    try {
+      const res = await api.post('/cms/settings/logo', formData);
+      if (res.data.success) {
+        toast.success('Logo updated successfully!');
+        set('site_logo', res.data.filePath);
+        refreshSettings();
+      }
+    } catch {
+      toast.error('Failed to upload logo');
+    }
+  };
+
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('site_favicon', file);
+    try {
+      const res = await api.post('/cms/settings/favicon', formData);
+      if (res.data.success) {
+        toast.success('Favicon updated successfully!');
+        set('site_favicon', res.data.filePath);
+        refreshSettings();
+      }
+    } catch {
+      toast.error('Failed to upload favicon');
+    }
+  };
+
+  const handleHeaderLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('header_logo', file);
+    try {
+      const res = await api.post('/cms/settings/header-logo', formData);
+      if (res.data.success) {
+        toast.success('Header Logo updated successfully!');
+        set('header_logo', res.data.filePath);
+        refreshSettings();
+      }
+    } catch {
+      toast.error('Failed to upload header logo');
+    }
+  };
+
+  const handleFooterLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('footer_logo', file);
+    try {
+      const res = await api.post('/cms/settings/footer-logo', formData);
+      if (res.data.success) {
+        toast.success('Footer Logo updated successfully!');
+        set('footer_logo', res.data.filePath);
+        refreshSettings();
+      }
+    } catch {
+      toast.error('Failed to upload footer logo');
+    }
+  };
+
+  const set = (key: keyof Settings, val: any) => setSettings(p => ({ ...p, [key]: val }));
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const res = await api.put('/cms/settings', settings);
+      if (res.data.success) {
+        toast.success('Site settings saved successfully!');
+        setSettings({ ...defaultSettings, ...res.data.settings });
+        refreshSettings();
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const SectionTitle = ({ icon: Icon, title, color = '#F24C20' }: any) => (
+    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-gray-100 dark:border-gray-700">
+      <div className="p-2.5 rounded-xl" style={{ backgroundColor: `${color}18` }}>
+        <Icon className="w-5 h-5" style={{ color }} />
+      </div>
+      <h2 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h2>
+    </div>
+  );
+
+  const Toggle = ({ field, label }: { field: keyof Settings; label: string }) => (
+    <div className="flex items-center justify-between py-2.5">
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+      <button
+        onClick={() => set(field, !settings[field])}
+        className={`relative w-11 h-6 rounded-full transition-colors ${settings[field] ? 'bg-[#F24C20]' : 'bg-gray-300 dark:bg-gray-600'}`}
+      >
+        <motion.div animate={{ x: settings[field] ? 22 : 2 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow" />
+      </button>
+    </div>
+  );
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-64">
+      <Loader2 className="w-8 h-8 text-[#F24C20] animate-spin mb-3" />
+      <p className="text-gray-500">Loading site settings...</p>
+    </div>
+  );
+
+  return (
+    <div>
+      <Breadcrumb items={[{ label: 'Site Management', path: 'pages' }, { label: 'Global Settings' }]} onNavigate={onNavigate} />
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Global Settings</h1>
+          <p className="text-gray-500 text-sm">All changes are saved to the database</p>
+        </div>
+        <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={handleSave} disabled={saving}
+          className="bg-[#F24C20] hover:bg-[#d43a12] text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 disabled:opacity-60">
+          {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Save className="w-5 h-5" /> Save Changes</>}
+        </motion.button>
+      </div>
+
+      <div className="space-y-6">
+        {/* Row 1: Branding + Platform Config */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* General / Brand */}
+          <div className="lg:col-span-2 bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={Globe} title="Branding & Contact" />
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Site Name">
+                <input className={inputCls} value={settings.site_name} onChange={e => set('site_name', e.target.value)} />
+              </Field>
+              <Field label="Tagline">
+                <input className={inputCls} value={settings.site_tagline} onChange={e => set('site_tagline', e.target.value)} placeholder="Find the best freelancers" />
+              </Field>
+              <Field label="Header Logo (Nav)">
+                <div className="flex gap-2">
+                  <input className={inputCls} value={settings.header_logo} onChange={e => set('header_logo', e.target.value)} placeholder="/logo.png" />
+                  <input type="file" id="header-logo-upload" className="hidden" accept="image/*" onChange={handleHeaderLogoUpload} />
+                  <button onClick={() => document.getElementById('header-logo-upload')?.click()} className="px-4 py-2.5 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-100 dark:hover:bg-[#333] transition-colors flex items-center gap-2 text-sm font-medium whitespace-nowrap">
+                    <Upload className="w-4 h-4" /> Header
+                  </button>
+                </div>
+              </Field>
+              <Field label="Footer Logo">
+                <div className="flex gap-2">
+                  <input className={inputCls} value={settings.footer_logo} onChange={e => set('footer_logo', e.target.value)} placeholder="/logo.png" />
+                  <input type="file" id="footer-logo-upload" className="hidden" accept="image/*" onChange={handleFooterLogoUpload} />
+                  <button onClick={() => document.getElementById('footer-logo-upload')?.click()} className="px-4 py-2.5 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-100 dark:hover:bg-[#333] transition-colors flex items-center gap-2 text-sm font-medium whitespace-nowrap">
+                    <Upload className="w-4 h-4" /> Footer
+                  </button>
+                </div>
+              </Field>
+              <div className="flex flex-col p-4 bg-black/40 dark:bg-black/60 rounded-2xl border border-gray-100 dark:border-[#262626] h-full transition-all hover:border-[#F24C20]/50 group/preview">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Branding Preview</div>
+                  <div className="flex items-center gap-1.5 opacity-0 group-hover/preview:opacity-100 transition-opacity">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">Live Sync</span>
+                  </div>
+                </div>
+                <div className="flex-1 flex items-center justify-center bg-[#1a1a1a] rounded-xl border border-[#333]/30 min-h-[140px] relative overflow-hidden">
+                  {/* Subtle Grid Pattern Background */}
+                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
+                  
+                  {settings.site_logo ? (
+                    <img 
+                      src={settings.site_logo.startsWith('http') ? settings.site_logo : `${apiUrl}${settings.site_logo}`} 
+                      alt="Site Logo" 
+                      className="max-h-20 w-48 object-contain relative z-10 transition-transform hover:scale-105 duration-500" 
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-gray-500 relative z-10">
+                      <LucideImage className="w-8 h-8 opacity-20" />
+                      <span className="text-[10px] font-medium uppercase tracking-widest opacity-40">No Logo Loaded</span>
+                    </div>
+                  )}
+                </div>
+                <p className="mt-3 text-[9px] text-gray-500 text-center leading-relaxed italic opacity-60">This is how your logo will appear on the high-contrast navigation bar</p>
+              </div>
+              <Field label="Contact Email">
+                <input className={inputCls} type="email" placeholder="contact@goexperts.com" value={settings.contact_email} onChange={e => set('contact_email', e.target.value)} />
+              </Field>
+              <Field label="Site Favicon">
+                 <div className="flex gap-2">
+                    <input className={inputCls} value={settings.site_favicon} onChange={e => set('site_favicon', e.target.value)} placeholder="Upload or paste favicon URL" />
+                    <input type="file" id="favicon-upload" className="hidden" accept="image/*" onChange={handleFaviconUpload} />
+                    <button onClick={() => document.getElementById('favicon-upload')?.click()} className="px-4 py-2.5 bg-gray-50 dark:bg-[#262626] border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-100 dark:hover:bg-[#333] transition-colors flex items-center gap-2 text-sm font-medium">
+                        <Upload className="w-4 h-4" /> Upload
+                    </button>
+                 </div>
+              </Field>
+              <div className="col-span-2">
+                <Field label="Contact Address">
+                  <input className={inputCls} value={settings.contact_address} onChange={e => set('contact_address', e.target.value)} />
+                </Field>
+              </div>
+            </div>
+          </div>
+
+          {/* Platform Config */}
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={Shield} title="Platform" color="#044071" />
+            <div className="space-y-4">
+              <Field label="Currency">
+                <select className={selectCls} value={settings.currency} onChange={e => set('currency', e.target.value)}>
+                  <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option>
+                </select>
+              </Field>
+              <Field label="Timezone">
+                <select className={selectCls} value={settings.timezone} onChange={e => set('timezone', e.target.value)}>
+                  <option>Asia/Kolkata</option><option>America/New_York</option><option>Europe/London</option><option>Asia/Dubai</option>
+                </select>
+              </Field>
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                <Field label="Referral Reward (₹)">
+                   <input className={inputCls} type="number" min={0} value={settings.referral_reward_amount} onChange={e => set('referral_reward_amount', Number(e.target.value))} />
+                </Field>
+              </div>
+              <Field label="Min Withdrawal (₹)">
+                 <input className={inputCls} type="number" min={0} value={settings.min_withdrawal_amount} onChange={e => set('min_withdrawal_amount', Number(e.target.value))} />
+              </Field>
+              <Toggle field="maintenance_mode" label="Maintenance Mode" />
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: SEO + Points + Social */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* SEO */}
+          <div className="bg-black dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={Search} title="SEO" color="#7c3aed" />
+            <div className="space-y-4">
+              <Field label="Meta Title">
+                <input className={inputCls} value={settings.meta_title} onChange={e => set('meta_title', e.target.value)} placeholder="Go Experts – Freelancer Platform" />
+              </Field>
+              <Field label="Meta Description">
+                <textarea className={inputCls + ' resize-none'} rows={3} value={settings.meta_description} onChange={e => set('meta_description', e.target.value)} placeholder="Short description for search engines..." />
+              </Field>
+              <Field label="Meta Keywords">
+                <input className={inputCls} value={settings.meta_keywords} onChange={e => set('meta_keywords', e.target.value)} placeholder="freelance, hire, experts" />
+              </Field>
+            </div>
+          </div>
+
+          {/* Points System */}
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={Coins} title="Points System" color="#d97706" />
+            <div className="space-y-4">
+              <Field label="Points per ₹1 Spent">
+                <input className={inputCls} type="number" min={0} value={settings.points_per_rupee} onChange={e => set('points_per_rupee', Number(e.target.value))} />
+              </Field>
+              <Field label="Signup Bonus Points">
+                <input className={inputCls} type="number" min={0} value={settings.points_signup_bonus} onChange={e => set('points_signup_bonus', Number(e.target.value))} />
+              </Field>
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                <p className="text-xs text-amber-700 dark:text-amber-400">New users will receive <strong>{settings.points_signup_bonus}</strong> bonus points on signup. Every ₹1 spent earns <strong>{settings.points_per_rupee}</strong> point(s).</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Links */}
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={Link} title="Social Links" color="#0ea5e9" />
+            <div className="space-y-4">
+              <Field label="Facebook URL">
+                <input className={inputCls} type="url" value={settings.social_facebook} onChange={e => set('social_facebook', e.target.value)} placeholder="https://facebook.com/..." />
+              </Field>
+              <Field label="Twitter / X URL">
+                <input className={inputCls} type="url" value={settings.social_twitter} onChange={e => set('social_twitter', e.target.value)} placeholder="https://twitter.com/..." />
+              </Field>
+              <Field label="LinkedIn URL">
+                <input className={inputCls} type="url" value={settings.social_linkedin} onChange={e => set('social_linkedin', e.target.value)} placeholder="https://linkedin.com/..." />
+              </Field>
+              <Field label="Instagram URL">
+                <input className={inputCls} type="url" value={settings.social_instagram} onChange={e => set('social_instagram', e.target.value)} placeholder="https://instagram.com/..." />
+              </Field>
+              <Field label="GitHub URL">
+                <input className={inputCls} type="url" value={settings.social_github} onChange={e => set('social_github', e.target.value)} placeholder="https://github.com/..." />
+              </Field>
+              <Field label="YouTube URL">
+                <input className={inputCls} type="url" value={settings.social_youtube} onChange={e => set('social_youtube', e.target.value)} placeholder="https://youtube.com/..." />
+              </Field>
+              <Field label="Footer Copyright Text">
+                <input className={inputCls} value={settings.footer_copyright} onChange={e => set('footer_copyright', e.target.value)} />
+              </Field>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Homepage Specifics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Homepage Stats */}
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={BarChart3} title="Homepage Stats" color="#10b981" />
+            <div className="space-y-4">
+              <div className="grid grid-cols-4 gap-2 text-xs font-bold text-gray-500 mb-1">
+                <div className="col-span-1">Label</div>
+                <div>Value</div>
+                <div>Suffix</div>
+                <div className="text-right">Action</div>
+              </div>
+              {settings.home_stats.map((stat, idx) => (
+                <div key={idx} className="grid grid-cols-4 gap-2 items-center">
+                  <input className={inputCls} value={stat.label} onChange={e => {
+                    const newStats = [...settings.home_stats];
+                    newStats[idx].label = e.target.value;
+                    set('home_stats', newStats);
+                  }} placeholder="Label" />
+                  <input className={inputCls} type="number" value={stat.value} onChange={e => {
+                    const newStats = [...settings.home_stats];
+                    newStats[idx].value = Number(e.target.value);
+                    set('home_stats', newStats);
+                  }} placeholder="Value" />
+                  <input className={inputCls} value={stat.suffix} onChange={e => {
+                    const newStats = [...settings.home_stats];
+                    newStats[idx].suffix = e.target.value;
+                    set('home_stats', newStats);
+                  }} placeholder="+" />
+                  <div className="flex justify-end">
+                    <button onClick={() => {
+                      const newStats = settings.home_stats.filter((_, i) => i !== idx);
+                      set('home_stats', newStats);
+                    }} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button
+                onClick={() => set('home_stats', [...settings.home_stats, { label: '', value: 0, suffix: '+', icon: 'CheckIcon' }])}
+                className="w-full py-2 border-2 border-dashed border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-500 hover:border-[#F24C20] hover:text-[#F24C20] transition-all"
+              >
+                + Add Stat Counter
+              </button>
+            </div>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+            <SectionTitle icon={Shield} title="Trust Badges (Partners)" color="#6366f1" />
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <input
+                  id="new-badge"
+                  className={inputCls}
+                  placeholder="Partner Name (e.g. Forbes)"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      const val = (e.target as HTMLInputElement).value;
+                      if (val) {
+                        set('trust_badges', [...settings.trust_badges, val]);
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    const input = document.getElementById('new-badge') as HTMLInputElement;
+                    if (input.value) {
+                      set('trust_badges', [...settings.trust_badges, input.value]);
+                      input.value = '';
+                    }
+                  }}
+                  className="bg-[#F24C20] text-white px-4 py-2 rounded-xl text-sm font-bold"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-2">
+                {settings.trust_badges.map((badge, idx) => (
+                  <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-[#262626] rounded-full text-sm">
+                    <span>{badge}</span>
+                    <button onClick={() => set('trust_badges', settings.trust_badges.filter((_, i) => i !== idx))}>
+                      <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400">These will appear in the "Trusted By" section on the homepage.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 4: Startup Ideas Configuration */}
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+          <SectionTitle icon={Rocket} title="Startup Ideas Configuration" color="#F24C20" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <Field label="Default Startup NDA (PDF Path)">
+                <div className="flex gap-2">
+                  <input
+                    className={inputCls}
+                    value={settings.startup_nda_template}
+                    onChange={e => set('startup_nda_template', e.target.value)}
+                    placeholder="/uploads/templates/startup-nda.pdf"
+                  />
+                  <input
+                    type="file"
+                    id="nda-upload"
+                    className="hidden"
+                    accept=".pdf"
+                    onChange={handleNDAUpload}
+                  />
+                  <button
+                    onClick={() => document.getElementById('nda-upload')?.click()}
+                    className="px-4 py-2.5 bg-gray-100 dark:bg-[#262626] border border-gray-200 dark:border-[#333] rounded-xl hover:bg-gray-200 dark:hover:bg-[#333] transition-colors flex items-center gap-2 text-sm font-medium"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload
+                  </button>
+                </div>
+              </Field>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 5: Subscription Highlights */}
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]">
+          <SectionTitle icon={Rocket} title="Subscription Experience Highlights" color="#F24C20" />
+          <p className="text-sm text-gray-500 mb-6 px-1">These highlights appear on the website pricing page to explain the platform's core value proposition.</p>
+
+          <div className="space-y-4">
+            <div className="flex gap-2 mb-4">
+              <input
+                id="new-highlight"
+                className={inputCls}
+                placeholder="New Highlight (e.g. 24/7 Phone Support)"
+              />
+              <button
+                onClick={() => {
+                  const input = document.getElementById('new-highlight') as HTMLInputElement;
+                  if (input.value) {
+                    set('subscription_highlights', [...settings.subscription_highlights, { label: input.value, enabled: true }]);
+                    input.value = '';
+                  }
+                }}
+                className="bg-[#F24C20] text-white px-6 py-2 rounded-xl text-sm font-bold flex-shrink-0"
+              >
+                Add
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {settings.subscription_highlights.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#262626] rounded-2xl border border-gray-100 dark:border-[#333]">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-1.5 rounded-lg ${item.enabled ? 'bg-orange-500/10 text-orange-500' : 'bg-gray-500/10 text-gray-400'}`}>
+                      <Rocket className="w-4 h-4" />
+                    </div>
+                    <span className={`text-sm font-medium ${item.enabled ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>{item.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        const newHighs = [...settings.subscription_highlights];
+                        newHighs[idx].enabled = !newHighs[idx].enabled;
+                        set('subscription_highlights', newHighs);
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${item.enabled
+                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                        }`}
+                    >
+                      {item.enabled ? 'Visible' : 'Hidden'}
+                    </button>
+                    <button
+                      onClick={() => set('subscription_highlights', settings.subscription_highlights.filter((_, i) => i !== idx))}
+                      className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 6: Subscription Category Groups */}
+        <div className="bg-dark dark:bg-[#111] rounded-2xl p-8 border border-gray-200 dark:border-[#262626]">
+          <SectionTitle icon={BarChart3} title="Subscription Experience: Categories & Icons" color="#F24C20" />
+          <p className="text-sm text-gray-500 mb-6 px-1">Customize the labels, icons, and descriptions for each plan category shown on the website.</p>
+
+          <div className="space-y-6">
+            {settings.subscription_groups.map((group, idx) => (
+              <div key={idx} className="p-8 bg-black dark:bg-black/20 rounded-[32px] border border-gray-100 dark:border-[#262626] grid grid-cols-1 md:grid-cols-4 gap-6 items-end group/card">
+                <div className="md:col-span-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Category Key (Fixed)</p>
+                  <div className="px-4 py-3 bg-gray-200/50 dark:bg-[#1a1a1a] rounded-xl text-xs font-mono text-gray-500">{group.name}</div>
+                </div>
+                <div className="md:col-span-1">
+                  <Field label="Display Label">
+                    <input className={inputCls} value={group.label} onChange={e => {
+                      const newGroups = [...settings.subscription_groups];
+                      newGroups[idx].label = e.target.value;
+                      set('subscription_groups', newGroups);
+                    }} />
+                  </Field>
+                </div>
+                <div className="md:col-span-1">
+                  <Field label="Icon Name (Lucide)">
+                    <input className={inputCls} value={group.icon} onChange={e => {
+                      const newGroups = [...settings.subscription_groups];
+                      newGroups[idx].icon = e.target.value;
+                      set('subscription_groups', newGroups);
+                    }} />
+                  </Field>
+                </div>
+                <div className="md:col-span-1 font-black text-xs text-gray-400">
+                  <p className="mb-2">Preview:</p>
+                  <div className="p-3 bg-[#F24C20]/10 rounded-xl inline-block">
+                    <Rocket className="w-5 h-5 text-[#F24C20]" />
+                    {/* Note: In a real app we'd use a dynamic icon component, but here we just show a placeholder or standard rocket for UI consistency */}
+                  </div>
+                </div>
+                <div className="md:col-span-4">
+                  <Field label="Category Description">
+                    <textarea className={inputCls + " h-20 resize-none"} value={group.description} onChange={e => {
+                      const newGroups = [...settings.subscription_groups];
+                      newGroups[idx].description = e.target.value;
+                      set('subscription_groups', newGroups);
+                    }} />
+                  </Field>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

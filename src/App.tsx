@@ -1,0 +1,518 @@
+import React, { useState, useEffect } from 'react';
+import { Toaster, toast } from 'sonner';
+import { io } from 'socket.io-client';
+import confetti from 'canvas-confetti';
+import { AdminLayout } from './components/AdminLayout';
+import { Dashboard } from './components/Dashboard';
+import { UsersList } from './components/UsersList';
+import { AddUser } from './components/AddUser';
+import { UserProfile } from './components/UserProfile';
+import { ProjectsList } from './components/ProjectsList';
+import { ProjectDetails } from './components/ProjectDetails';
+import { GigsList } from './components/GigsList';
+import { GigOrders } from './components/GigOrders';
+import { GigOrderDetails } from './components/GigOrderDetails';
+import { PaymentsOverview } from './components/PaymentsOverview';
+import { WithdrawRequests } from './components/WithdrawRequests';
+import { CommissionSettings } from './components/CommissionSettings';
+import { PaymentMethods } from './components/PaymentMethods';
+import { DisputesList } from './components/DisputesList';
+import { DisputeDetails } from './components/DisputeDetails';
+import { PagesManagement } from './components/PagesManagement';
+import { ContactMessages } from './components/ContactMessages';
+import { MenusManagement } from './components/MenusManagement';
+import { GlobalSettings } from './components/GlobalSettings';
+import { EmailSettings } from './components/EmailSettings';
+import { Categories } from './components/Categories';
+import { Skills } from './components/Skills';
+import { Languages } from './components/Languages';
+import { Analytics } from './components/Analytics';
+import { AdminProfile } from './components/AdminProfile';
+import { SubscriptionsManagement } from './components/SubscriptionsManagement';
+import { WebsiteDemo } from './components/WebsiteDemo';
+import { LoginPage } from './components/LoginPage';
+import { RegistrationSteps } from './components/RegistrationSteps';
+import { BannersManagement } from './components/BannersManagement';
+import { FAQsManagement } from './components/FAQsManagement';
+import { TestimonialsManagement } from './components/TestimonialsManagement';
+import { CreateSubscriptionPlan } from './components/CreateSubscriptionPlan';
+import { EditSubscriptionPlan } from './components/EditSubscriptionPlan';
+import { ResetPassword } from './components/ResetPassword';
+import { StartupIdeasManagement } from './components/StartupIdeasManagement';
+import { StartupCategories } from './components/StartupCategories';
+import { StartupIdeaDetail } from './components/StartupIdeaDetail';
+import { StartupIdeaLegalSection } from './components/StartupIdeaLegalSection';
+import { InvestorMeetingsManagement } from './components/InvestorMeetingsManagement';
+import { InvestorOpportunitiesManagement } from './components/InvestorOpportunitiesManagement';
+import { KYCReviewPage } from './components/KYCReview';
+
+export default function App() {
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check for token and user in URL (for cross-origin redirection from Website)
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const urlUser = params.get('user');
+
+    if (urlToken && urlUser) {
+      localStorage.setItem('token', urlToken);
+      localStorage.setItem('user', decodeURIComponent(urlUser));
+      // Clear the query parameters from the URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const checkAuth = () => {
+      const path = window.location.pathname;
+      if (path.startsWith('/reset-password/')) {
+        const token = path.split('/').pop() || null;
+        setResetToken(token);
+        setCurrentPage('reset-password');
+        setIsAuthorized(false); // Force unauthorized view to show ResetPassword if on that path
+        return;
+      }
+
+      const userStr = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+
+      if (userStr && token) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user.roles?.includes('admin')) {
+            setIsAuthorized(true);
+          } else {
+            setIsAuthorized(false);
+          }
+        } catch (e) {
+          setIsAuthorized(false);
+        }
+      } else {
+        setIsAuthorized(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLoginSuccess = (token: string, user: any) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    setIsAuthorized(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthorized(false);
+    window.history.replaceState({}, '', '/');
+  };
+
+  const getAdminUser = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch { return null; }
+  };
+
+  // URL Mapping Configuration
+  const PAGE_URLS: Record<string, string> = {
+    'dashboard': '/',
+    'users': '/users',
+    'users-new': '/users/new',
+    'users-active': '/users/active',
+    'users-kyc-not-verified': '/users/kyc-not-verified',
+    'users-blocked': '/users/blocked',
+    'users-soft-deleted': '/users/soft-deleted',
+    'users-paid': '/users/paid',
+    'verification': '/verification',
+    'suspended': '/suspended-users',
+    'projects': '/projects',
+    'pending-approvals': '/pending-approvals',
+    // 'proposals': '/proposals',
+    'gigs': '/gigs',
+    'gig-orders': '/gig-orders',
+    'gig-approvals': '/gig-approvals',
+    'subscriptions': '/subscriptions',
+    'create-subscription-plan': '/subscriptions/create',
+    'edit-subscription-plan': '/subscriptions/edit',
+    'payments': '/payments',
+    'withdraw-requests': '/withdraw-requests',
+    'commission': '/commission-settings',
+    'refunds': '/refunds',
+    'payment-methods': '/payment-methods',
+    'disputes': '/disputes',
+    'resolved-disputes': '/resolved-disputes',
+    'pages': '/pages',
+    'contact-messages': '/contact-messages',
+    'menus': '/menus',
+    'banners': '/banners',
+    'faqs': '/faqs',
+    'testimonials': '/testimonials',
+    'global-settings': '/global-settings',
+    'email-settings': '/email-settings',
+    'registration-steps': '/registrationflow', // Specific user request
+    'categories': '/categories',
+    'skills': '/skills',
+    'tags': '/tags',
+    'languages': '/languages',
+    'analytics': '/analytics',
+    'website-demo': '/website-demo',
+    'admin-profile': '/admin-profile',
+    'startup-ideas': '/startup-ideas',
+    'startup-categories': '/startup-categories',
+    'startup-ideas-faq': '/startup-ideas/faq',
+    'startup-ideas-terms': '/startup-ideas/terms',
+    'startup-ideas-privacy': '/startup-ideas/privacy',
+    'investor-meetings': '/investor-meetings',
+    'investor-opportunities': '/investor-opportunities',
+    'kyc-review': '/kyc-review'
+  };
+
+  const getPageFromUrl = () => {
+    const path = window.location.pathname;
+    if (path.startsWith('/reset-password/')) {
+      return 'reset-password';
+    }
+    // Find key where value matches path
+    const page = Object.keys(PAGE_URLS).find(key => PAGE_URLS[key] === path);
+    return page || 'dashboard';
+  };
+
+  const [darkMode, setDarkMode] = useState(true);
+  const [currentPage, setCurrentPage] = useState(getPageFromUrl());
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
+  const [selectedDisputeId, setSelectedDisputeId] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedStartupIdeaId, setSelectedStartupIdeaId] = useState<string | null>(null);
+  const [selectedVerifyUserId, setSelectedVerifyUserId] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(() => {
+    const path = window.location.pathname;
+    return path.startsWith('/reset-password/') ? path.split('/').pop() || null : null;
+  });
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromUrl());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Handle Real-time Admin Notifications
+  useEffect(() => {
+    if (isAuthorized) {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const socket = io(apiUrl);
+      
+      socket.on('connect', () => {
+        console.log('Admin connected to live notifications');
+      });
+
+      socket.on('admin_notification', (notification) => {
+        setUnreadCount(prev => prev + 1);
+        // Trigger Toast Notification
+        toast.info(notification.title, {
+          description: notification.message,
+          duration: 10000,
+          action: {
+            label: 'View',
+            onClick: () => {
+              if (notification.type === 'NEW_REGISTRATION') handleNavigate('users');
+              else if (notification.type === 'NEW_SUBSCRIPTION') handleNavigate('payments');
+            }
+          }
+        });
+        
+        // Celebration Blast for Paid Subscriptions
+        if (notification.type === 'NEW_SUBSCRIPTION') {
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#F24C20', '#044071', '#ffffff']
+          });
+        }
+
+        // Audible Alert (optional but requested as "proper messaging")
+        try {
+          const context = new AudioContext();
+          const oscillator = context.createOscillator();
+          const gain = context.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(440, context.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.1, context.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
+          oscillator.connect(gain);
+          gain.connect(context.destination);
+          oscillator.start();
+          oscillator.stop(context.currentTime + 0.3);
+        } catch (e) {
+          console.warn('Audio alert failed:', e);
+        }
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [isAuthorized]);
+
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page);
+    setSelectedUserId(null);
+    setSelectedProjectId(null);
+    setSelectedSubscriptionId(null);
+    setSelectedDisputeId(null);
+    setSelectedOrderId(null);
+    setSelectedStartupIdeaId(null);
+    setSelectedVerifyUserId(null);
+    setShowAddUser(false);
+
+    // Update URL
+    const url = PAGE_URLS[page] || '/';
+    window.history.pushState({ page }, '', url);
+  };
+
+  const renderPage = () => {
+    // Add User Page
+    if (showAddUser) {
+      return <AddUser onNavigate={handleNavigate} onBack={() => setShowAddUser(false)} />;
+    }
+
+    // Detail Pages
+    if (selectedUserId) {
+      return <UserProfile userId={selectedUserId} onBack={() => setSelectedUserId(null)} />;
+    }
+
+    if (selectedProjectId) {
+      return <ProjectDetails projectId={selectedProjectId} onBack={() => setSelectedProjectId(null)} />;
+    }
+
+    if (selectedDisputeId) {
+      return <DisputeDetails disputeId={selectedDisputeId} onBack={() => setSelectedDisputeId(null)} />;
+    }
+
+    if (selectedSubscriptionId) {
+      return <EditSubscriptionPlan planId={selectedSubscriptionId} onBack={() => setSelectedSubscriptionId(null)} />;
+    }
+
+    if (selectedOrderId) {
+      return <GigOrderDetails orderId={selectedOrderId} onBack={() => setSelectedOrderId(null)} onNavigate={handleNavigate} />;
+    }
+
+    if (selectedStartupIdeaId) {
+      return <StartupIdeaDetail ideaId={selectedStartupIdeaId} onBack={() => setSelectedStartupIdeaId(null)} />;
+    }
+
+    if (selectedVerifyUserId) {
+      return <KYCReviewPage userId={selectedVerifyUserId} onBack={() => setSelectedVerifyUserId(null)} />;
+    }
+
+    switch (currentPage) {
+      case 'dashboard':
+        return (
+          <Dashboard
+            onNavigate={handleNavigate}
+            onSelectUser={setSelectedUserId}
+            onSelectProject={setSelectedProjectId}
+            onSelectDispute={setSelectedDisputeId}
+            onSelectOrder={setSelectedOrderId}
+          />
+        );
+
+      // Users & Verification
+      case 'users':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="all" />;
+      case 'users-new':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="new" />;
+      case 'users-active':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="active" />;
+      case 'users-kyc-not-verified':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="kyc_not_verified" />;
+      case 'users-blocked':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="blocked" />;
+      case 'users-soft-deleted':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="deleted" />;
+      case 'users-paid':
+        return <UsersList onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} viewType="paid" />;
+      case 'verification':
+        return <UsersList viewType="verification" onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} />;
+      case 'suspended':
+        return <UsersList viewType="suspended" onSelectUser={setSelectedUserId} onVerifyUser={setSelectedVerifyUserId} onAddUser={() => setShowAddUser(true)} onNavigateTab={handleUsersTabNavigate} />;
+
+      // Projects
+      case 'projects':
+        return <ProjectsList onSelectProject={setSelectedProjectId} />;
+      case 'pending-approvals':
+        return <ProjectsList onSelectProject={setSelectedProjectId} initialFilter="in_queue" />;
+      // case 'proposals':
+      //   return <ProjectsList onSelectProject={setSelectedProjectId} />;
+
+      // Gigs
+      case 'gigs':
+        return <GigsList />;
+      case 'gig-orders':
+        return <GigOrders onSelectOrder={setSelectedOrderId} />;
+      case 'gig-approvals':
+        return <GigsList />;
+
+      // Startup Ideas
+      case 'startup-ideas':
+        return <StartupIdeasManagement onSelectIdea={setSelectedStartupIdeaId} />;
+      case 'startup-categories':
+        return <StartupCategories />;
+      case 'startup-ideas-faq':
+        return <StartupIdeaLegalSection type="faq" />;
+      case 'startup-ideas-terms':
+        return <StartupIdeaLegalSection type="terms" />;
+      case 'startup-ideas-privacy':
+        return <StartupIdeaLegalSection type="privacy" />;
+      case 'investor-meetings':
+        return <InvestorMeetingsManagement />;
+      case 'investor-opportunities':
+        return <InvestorOpportunitiesManagement />;
+
+      // Subscriptions
+      case 'subscriptions':
+        return <SubscriptionsManagement onNavigate={handleNavigate} onEditPlan={(id) => setSelectedSubscriptionId(id)} />;
+      case 'create-subscription-plan':
+        return <CreateSubscriptionPlan onBack={() => handleNavigate('subscriptions')} onNavigate={handleNavigate} />;
+
+      // Transactions & Wallet
+      case 'payments':
+        return <PaymentsOverview />;
+      case 'withdraw-requests':
+        return <WithdrawRequests />;
+      case 'commission':
+        return <CommissionSettings />;
+      case 'refunds':
+        return <PaymentsOverview />;
+      case 'payment-methods':
+        return <PaymentMethods onNavigate={handleNavigate} />;
+
+      // Disputes
+      case 'disputes':
+        return <DisputesList onSelectDispute={setSelectedDisputeId} />;
+      case 'resolved-disputes':
+        return <DisputesList onSelectDispute={setSelectedDisputeId} />;
+
+      // Content & Site
+      case 'pages':
+        return <PagesManagement />;
+      case 'contact-messages':
+        return <ContactMessages />;
+      case 'menus':
+        return <MenusManagement onNavigate={handleNavigate} />;
+      case 'banners':
+        return <BannersManagement />;
+      case 'faqs':
+        return <FAQsManagement />;
+      case 'testimonials':
+        return <TestimonialsManagement />;
+      case 'global-settings':
+        return <GlobalSettings onNavigate={handleNavigate} />;
+      case 'email-settings':
+        return <EmailSettings onNavigate={handleNavigate} />;
+      case 'registration-steps':
+        return <RegistrationSteps />;
+
+
+      // Taxonomies
+      case 'categories':
+        return <Categories />;
+      case 'skills':
+        return <Skills />;
+      case 'tags':
+        return <Skills />;
+      case 'languages':
+        return <Languages onNavigate={handleNavigate} />;
+
+      // Reports & Analytics
+      case 'analytics':
+        return <Analytics />;
+
+      // Website Demo
+      case 'website-demo':
+        return <WebsiteDemo />;
+
+      // Admin Profile
+      case 'admin-profile':
+        return <AdminProfile />;
+
+      default:
+        return <Dashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  const handleUsersTabNavigate = (status: string) => {
+    const statusToPage: Record<string, string> = {
+      all: 'users',
+      new: 'users-new',
+      active: 'users-active',
+      kyc_not_verified: 'users-kyc-not-verified',
+      blocked: 'users-blocked',
+      deleted: 'users-soft-deleted',
+      paid: 'users-paid',
+      suspended: 'suspended'
+    };
+    handleNavigate(statusToPage[status] || 'users');
+  };
+
+  // Handle Dark Mode
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  return (
+    <div>
+      <Toaster position="top-right" richColors />
+
+      {isAuthorized === null ? (
+        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-white">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F24C20] mx-auto mb-4"></div>
+            <p className="text-gray-400">Verifying Admin Session...</p>
+          </div>
+        </div>
+      ) : isAuthorized === false ? (
+        currentPage === 'reset-password' && resetToken ? (
+          <ResetPassword
+            token={resetToken}
+            onResetSuccess={() => {
+              setResetToken(null);
+              setCurrentPage('dashboard');
+              window.history.replaceState({}, '', '/');
+            }}
+          />
+        ) : (
+          <LoginPage onLoginSuccess={handleLoginSuccess} />
+        )
+      ) : (
+        <AdminLayout
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(!darkMode)}
+          currentPage={currentPage}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+          adminUser={getAdminUser()}
+          notificationCount={unreadCount}
+          onClearNotifications={() => setUnreadCount(0)}
+          onSelectUser={setSelectedUserId}
+          onSelectProject={setSelectedProjectId}
+        >
+          {renderPage()}
+        </AdminLayout>
+      )}
+    </div>
+  );
+}
