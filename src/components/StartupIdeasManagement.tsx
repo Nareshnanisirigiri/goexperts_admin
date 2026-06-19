@@ -117,7 +117,7 @@ export function StartupIdeasManagement({ onSelectIdea }: Props) {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard title="Total Submissions" value={stats.total} icon={<Rocket className="w-5 h-5" />} color="blue" />
-        <StatCard title="Pending Review" value={stats.pending} icon={<AlertCircle className="w-5 h-5" />} color="amber" />
+        <StatCard title="Pending Review" value={stats.pending} icon={<AlertCircle className="w-5 h-5" />} color="orange" />
         <StatCard title="Live Ideas" value={stats.approved} icon={<CheckCircle className="w-5 h-5" />} color="green" />
         <StatCard title="Total Ecosystem Views" value={stats.totalViews} icon={<TrendingUp className="w-5 h-5" />} color="purple" />
       </div>
@@ -199,7 +199,7 @@ export function StartupIdeasManagement({ onSelectIdea }: Props) {
                       View Signed NDA
                     </a>
                   ) : idea.ndaRequired === 'Yes' ? (
-                    <span className="text-[10px] text-amber-500 font-bold bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded">AWAITING NDA</span>
+                    <span className="text-[10px] text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-orange-950/20 px-2 py-1 rounded">AWAITING NDA</span>
                   ) : (
                     <span className="text-[10px] text-gray-400 font-bold bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded">NO NDA</span>
                   )}
@@ -207,10 +207,10 @@ export function StartupIdeasManagement({ onSelectIdea }: Props) {
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
                     idea.status === 'approved' 
-                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' 
+                      ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' 
                       : idea.status === 'pending' 
-                        ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500' 
-                        : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-500'
+                        ? 'bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400' 
+                        : 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400'
                   }`}>
                     {normalizeIdeaStatus(idea.status)}
                   </span>
@@ -261,10 +261,10 @@ export function StartupIdeasManagement({ onSelectIdea }: Props) {
 
 function StatCard({ title, value, icon, color }: any) {
   const colors: any = {
-    blue: 'bg-blue-50 text-blue-600',
-    amber: 'bg-amber-50 text-amber-600',
-    green: 'bg-green-50 text-green-600',
-    purple: 'bg-purple-50 text-purple-600'
+    blue: 'bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400',
+    orange: 'bg-orange-50 dark:bg-orange-900/10 text-orange-600 dark:text-orange-400',
+    green: 'bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400',
+    purple: 'bg-purple-50 dark:bg-purple-900/10 text-purple-600 dark:text-purple-400'
   };
   return (
     <div className="bg-white dark:bg-[#1a1a1a] p-8 rounded-xl border border-gray-100 dark:border-[#262626] flex items-center gap-4">

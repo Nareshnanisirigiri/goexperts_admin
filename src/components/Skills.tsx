@@ -117,7 +117,9 @@ export function Skills() {
         <AnimatePresence>
           {showForm && (
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-200 dark:border-gray-700 h-fit">
+              className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-200 dark:border-gray-700 h-fit"
+              style={{ position: 'sticky', top: '88px', zIndex: 10 }}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-lg">{editingId ? 'Edit Skill' : 'Add New Skill'}</h3>
                 <button onClick={closeForm} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-4 h-4" /></button>
@@ -158,7 +160,8 @@ export function Skills() {
           {/* Search */}
           <div className="mb-4">
             <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search skills..."
-              className="w-full max-w-sm px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-sm" />
+              className="w-full max-w-sm px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-sm"
+              style={{ height: '48px' }} />
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <table className="w-full">

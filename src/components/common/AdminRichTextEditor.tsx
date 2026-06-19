@@ -219,7 +219,7 @@ export function AdminRichTextEditor({
       placeholder,
       toolbar: {
         items: toolbarItemsByPreset[toolbarPreset],
-        shouldNotGroupWhenFull: false
+        shouldNotGroupWhenFull: true
       },
       heading: {
         options: [
@@ -305,6 +305,16 @@ export function AdminRichTextEditor({
       <style>{`
         .admin-rich-text-editor {
           color: #0f172a;
+        }
+        /* Make toolbar static and prevent sticky behavior */
+        .admin-rich-text-editor .ck.ck-editor__top.ck-reset_all {
+          position: static !important;
+        }
+        .admin-rich-text-editor .ck.ck-sticky-panel__placeholder {
+          display: none !important;
+        }
+        .admin-rich-text-editor .ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
+          position: unset !important;
         }
         .admin-rich-text-editor .ck.ck-toolbar {
           border: 0;

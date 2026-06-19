@@ -34,7 +34,6 @@ export const StartupIdeaLegalSection: React.FC<StartupIdeaLegalSectionProps> = (
   // For FAQ
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [search, setSearch] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [faqForm, setFaqForm] = useState({ question: '', answer: '', sort_order: 0 });
@@ -158,7 +157,7 @@ export const StartupIdeaLegalSection: React.FC<StartupIdeaLegalSectionProps> = (
     return (
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] p-6 shadow-lg">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] p-6 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="rounded-xl border border-[#F24C20]/20 bg-[#F24C20]/10 p-3">
               <HelpCircle className="w-8 h-8 text-[#F24C20]" />
@@ -173,7 +172,7 @@ export const StartupIdeaLegalSection: React.FC<StartupIdeaLegalSectionProps> = (
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowFaqForm(true)}
-              className="flex items-center gap-2 bg-[#F24C20] hover:bg-[#E23C10] text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"
+              className="w-fit flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#E23C10] text-white px-6 h-12 rounded-full font-bold transition-all shadow-md ml-auto mr-2"
             >
               <Plus className="w-5 h-5" />
               Add FAQ
@@ -258,19 +257,14 @@ export const StartupIdeaLegalSection: React.FC<StartupIdeaLegalSectionProps> = (
 
         {/* Search Bar */}
         <div className="relative">
-          {!(isSearchFocused || search) && (
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
-          )}
+          <Search className="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" style={{ left: '18px' }} />
           <input
             type="text"
             placeholder="Search through FAQs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
-            className={`w-full rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] py-3 pr-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-transparent transition-all ${
-              isSearchFocused || search ? 'pl-4' : 'pl-11'
-            }`}
+            className="w-full rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] py-3 pr-4 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-transparent transition-all"
+            style={{ paddingLeft: '44px' }}
           />
         </div>
 
@@ -500,33 +494,34 @@ export const StartupIdeaLegalSection: React.FC<StartupIdeaLegalSectionProps> = (
 };
 
 const editorStyles = `
+  /* Light Mode styles (default) */
   .startup-legal-editor .admin-rich-text-editor {
     border-radius: 1.5rem !important;
-    border: 1px solid #262626 !important;
-    background: linear-gradient(180deg, #141414 0%, #101010 100%) !important;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
     overflow: hidden !important;
   }
   .startup-legal-editor .ck.ck-editor {
-    background: #111111 !important;
+    background: #ffffff !important;
     border-radius: 1.5rem !important;
   }
   .startup-legal-editor .ck.ck-toolbar {
-    background: #181818 !important;
+    background: #f8fafc !important;
     border: 0 !important;
-    border-bottom: 1px solid #1a1a1a !important;
+    border-bottom: 1px solid #e5e7eb !important;
     border-top-left-radius: 1.5rem !important;
     border-top-right-radius: 1.5rem !important;
     padding: 0.875rem 1.25rem !important;
     gap: 0.5rem !important;
   }
   .startup-legal-editor .ck.ck-editor__main {
-    background: #111111 !important;
+    background: #ffffff !important;
     border: 0 !important;
   }
   .startup-legal-editor .ck.ck-button,
   .startup-legal-editor .ck.ck-toolbar .ck.ck-toolbar__separator {
-    color: #cbd5e1 !important;
+    color: #475569 !important;
     border: 0 !important;
   }
   .startup-legal-editor .ck.ck-toolbar__separator {
@@ -535,18 +530,18 @@ const editorStyles = `
     width: 0 !important;
   }
   .startup-legal-editor .ck.ck-button:hover {
-    background-color: #242424 !important;
+    background-color: #f1f5f9 !important;
   }
   .startup-legal-editor .ck.ck-button.ck-on {
-    background-color: rgba(242, 76, 32, 0.18) !important;
-    color: #ffffff !important;
+    background-color: rgba(242, 76, 32, 0.1) !important;
+    color: #F24C20 !important;
   }
   .startup-legal-editor .ck-editor__main .ck-content,
   .startup-legal-editor .admin-rich-text-editor .ck.ck-content {
     display: block !important;
     width: 100% !important;
-    background: #111111 !important;
-    color: #f8fafc !important;
+    background: #ffffff !important;
+    color: #1f2937 !important;
     border: 0 !important;
     border-bottom-left-radius: 1.5rem !important;
     border-bottom-right-radius: 1.5rem !important;
@@ -557,12 +552,49 @@ const editorStyles = `
     letter-spacing: 0.3px !important;
   }
   .startup-legal-editor .ck.ck-placeholder::before {
-    color: #64748b !important;
+    color: #94a3b8 !important;
     padding-left: 0.25rem !important;
   }
   .startup-legal-editor .ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
     box-shadow: inset 0 0 0 1px rgba(242, 76, 32, 0.35) !important;
   }
+
+  /* Dark Mode overrides (when root html has .dark) */
+  .dark .startup-legal-editor .admin-rich-text-editor {
+    border: 1px solid #262626 !important;
+    background: linear-gradient(180deg, #141414 0%, #101010 100%) !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35) !important;
+  }
+  .dark .startup-legal-editor .ck.ck-editor {
+    background: #111111 !important;
+  }
+  .dark .startup-legal-editor .ck.ck-toolbar {
+    background: #181818 !important;
+    border-bottom: 1px solid #1a1a1a !important;
+  }
+  .dark .startup-legal-editor .ck.ck-editor__main {
+    background: #111111 !important;
+  }
+  .dark .startup-legal-editor .ck.ck-button,
+  .dark .startup-legal-editor .ck.ck-toolbar .ck.ck-toolbar__separator {
+    color: #cbd5e1 !important;
+  }
+  .dark .startup-legal-editor .ck.ck-button:hover {
+    background-color: #242424 !important;
+  }
+  .dark .startup-legal-editor .ck.ck-button.ck-on {
+    background-color: rgba(242, 76, 32, 0.18) !important;
+    color: #ffffff !important;
+  }
+  .dark .startup-legal-editor .ck-editor__main .ck-content,
+  .dark .startup-legal-editor .admin-rich-text-editor .ck.ck-content {
+    background: #111111 !important;
+    color: #f8fafc !important;
+  }
+  .dark .startup-legal-editor .ck.ck-placeholder::before {
+    color: #64748b !important;
+  }
+
   .prose-editor ul, .prose-editor ol {
     padding-left: 2rem;
     margin-bottom: 1.25rem;

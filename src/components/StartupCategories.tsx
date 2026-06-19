@@ -25,7 +25,12 @@ export function StartupCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/startup-categories');
+      let res;
+      try {
+        res = await api.get('/admin/startup-categories');
+      } catch (adminError) {
+        res = await api.get('/startup-categories');
+      }
       if (res.data.success) {
         const sorted = [...res.data.data].sort((a: any, b: any) => {
           const dateA = new Date(a.createdAt || 0).getTime();
@@ -56,7 +61,24 @@ export function StartupCategories() {
     e.preventDefault();
     try {
       if (currentCategory) {
-        await api.put(`/admin/startup-categories/${currentCategory._id}`, formData);
+        // Update general details
+        await api.put(`/admin/startup-categories/${currentCategory._id}`, {
+          name: formData.name,
+          description: formData.description
+        });
+        
+        // If status was changed, update status too using robust methods
+        if (formData.status !== currentCategory.status) {
+          try {
+            await api.patch(`/admin/startup-categories/${currentCategory._id}/toggle`);
+          } catch (err1) {
+            try {
+              await api.patch(`/admin/startup-categories/${currentCategory._id}`, { status: formData.status });
+            } catch (err2) {
+              await api.put(`/admin/startup-categories/${currentCategory._id}`, formData);
+            }
+          }
+        }
         toast.success('Category updated successfully');
       } else {
         await api.post('/admin/startup-categories', formData);
@@ -84,11 +106,22 @@ export function StartupCategories() {
   const handleToggleStatus = async (cat: any) => {
     try {
       const newStatus = cat.status === 'active' ? 'inactive' : 'active';
-      await api.put(`/admin/startup-categories/${cat._id}`, {
-        name: cat.name,
-        description: cat.description,
-        status: newStatus
-      });
+      try {
+        // Strategy 1: standard PATCH /toggle endpoint
+        await api.patch(`/admin/startup-categories/${cat._id}/toggle`);
+      } catch (err1) {
+        try {
+          // Strategy 2: partial PATCH status endpoint
+          await api.patch(`/admin/startup-categories/${cat._id}`, { status: newStatus });
+        } catch (err2) {
+          // Strategy 3: PUT fallback
+          await api.put(`/admin/startup-categories/${cat._id}`, {
+            name: cat.name,
+            description: cat.description,
+            status: newStatus
+          });
+        }
+      }
       toast.success(`Category marked as ${newStatus}`);
       fetchCategories();
     } catch (error) {
@@ -135,8 +168,8 @@ export function StartupCategories() {
                  onClick={() => handleToggleStatus(cat)}
                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 ${
                     cat.status === 'active' 
-                    ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-sm' 
-                    : 'bg-red-500/10 text-red-600 border border-red-500/20 shadow-sm'
+                    ? 'bg-green-600 text-white border border-green-600 hover:bg-green-750 shadow-sm' 
+                    : 'bg-red-600 text-white border border-red-600 hover:bg-red-750 shadow-sm'
                  }`}
                  title="Click to toggle status"
                >

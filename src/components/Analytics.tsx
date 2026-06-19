@@ -31,17 +31,17 @@ export function Analytics() {
         </div>
         <div className="flex gap-3">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 px-6 py-3 rounded-xl font-medium flex items-center gap-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="border border-gray-300 dark:border-gray-600 hover:border-[#F24C20] dark:hover:border-[#F24C20] hover:text-[#F24C20] dark:hover:text-[#F24C20] text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all"
           >
             <Filter className="w-5 h-5" />
             Filter
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-[#F24C20] hover:bg-[#E23C10] text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all shadow-md"
           >
             <Download className="w-5 h-5" />
             Export Report

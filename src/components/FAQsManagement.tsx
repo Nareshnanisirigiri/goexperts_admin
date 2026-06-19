@@ -20,7 +20,6 @@ export function FAQsManagement() {
     const [faqs, setFaqs] = useState<FAQ[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [editingFAQ, setEditingFAQ] = useState<FAQ | null>(null);
@@ -171,7 +170,7 @@ export function FAQsManagement() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={openAdd}
-                    className="bg-[#F24C20] hover:bg-[#E23C10] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 self-start md:self-auto"
+                    className="w-fit px-6 h-12 bg-[#F24C20] hover:bg-[#E23C10] text-white rounded-full font-bold shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 ml-auto mr-2"
                 >
                     <Plus className="w-5 h-5" />
                     Add FAQ
@@ -213,25 +212,30 @@ export function FAQsManagement() {
                                 exit={{ opacity: 0, y: -8 }}
                                 className="bg-white/85 dark:bg-[#1a1a1a]/85 backdrop-blur-md rounded-2xl border border-orange-500/20 p-6 shadow-xl"
                             >
-                                <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-[#262626] pb-3">
-                                    <div className="w-8 h-8 rounded-lg bg-[#F24C20]/10 flex items-center justify-center text-[#F24C20]">
-                                        {editingFAQ ? <Edit className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                                    </div>
-                                    {editingFAQ ? 'Edit FAQ Details' : 'Create New FAQ'}
-                                </h2>
+                                <div className="mb-6 border-b border-gray-100 dark:border-[#262626] pb-3">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-[#F24C20]/10 flex items-center justify-center text-[#F24C20]">
+                                            {editingFAQ ? <Edit className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                                        </div>
+                                        {editingFAQ ? 'Edit FAQ Details' : 'Create New FAQ'}
+                                    </h2>
+                                    <p className="text-gray-500 dark:text-gray-400 text-xs" style={{ marginLeft: '40px', marginTop: '12px' }}>
+                                        Add clear, helpful answers to help users navigate and solve common platform issues quickly.
+                                    </p>
+                                </div>
                                 <div className="space-y-5">
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Question *</label>
+                                        <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Question *</label>
                                         <input
                                             type="text"
                                             value={form.question}
                                             onChange={e => setForm({ ...form, question: e.target.value })}
                                             placeholder="e.g. How do I get paid?"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#0f0f0f]/50 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-transparent transition-all"
+                                            className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Answer *</label>
+                                        <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Answer *</label>
                                         <div className="prose-editor faq-editor rounded-xl border border-gray-200 dark:border-[#262626] overflow-hidden bg-gray-50/50 dark:bg-[#0f0f0f]/50">
                                             <AdminRichTextEditor
                                                 key={editingFAQ ? editingFAQ._id : 'new'}
@@ -245,40 +249,40 @@ export function FAQsManagement() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Category</label>
+                                            <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Category</label>
                                             <select
                                                 value={form.category}
                                                 onChange={e => setForm({ ...form, category: e.target.value })}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#0f0f0f]/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-transparent transition-all"
+                                                className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                                             >
                                                 {CATEGORIES.map(c => <option key={c} className="bg-white dark:bg-[#1a1a1a]">{c}</option>)}
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Sort Order</label>
+                                            <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Sort Order</label>
                                             <input
                                                 type="number"
                                                 value={form.sort_order}
                                                 onChange={e => setForm({ ...form, sort_order: Number(e.target.value) })}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50/50 dark:bg-[#0f0f0f]/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-transparent transition-all"
+                                                className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                                             />
                                         </div>
                                     </div>
-                                    <div className="flex gap-3 pt-3">
+                                    <div className="flex flex-wrap items-center justify-end gap-3 pt-3">
+                                        <motion.button 
+                                            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                                            onClick={resetForm} 
+                                            className="w-[130px] h-12 flex items-center justify-center gap-2 rounded-2xl border border-gray-200 dark:border-[#262626] text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-[#262626] transition-all"
+                                        >
+                                            Cancel
+                                        </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                             onClick={handleSubmit}
                                             disabled={saving}
-                                            className="flex-1 flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#E23C10] disabled:opacity-60 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-orange-500/10 transition-all"
+                                            className="w-[130px] h-12 flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#E23C10] disabled:opacity-60 text-white rounded-2xl font-bold shadow-lg shadow-orange-500/10 transition-all"
                                         >
-                                            {saving ? 'Saving...' : <><CheckCircle className="w-5 h-5" /> {editingFAQ ? 'Update FAQ' : 'Create FAQ'}</>}
-                                        </motion.button>
-                                        <motion.button 
-                                            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                                            onClick={resetForm} 
-                                            className="px-6 py-3 rounded-xl border border-gray-200 dark:border-[#262626] text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-[#262626] transition-all"
-                                        >
-                                            Cancel
+                                            {saving ? 'Saving...' : <><CheckCircle className="w-5 h-5" /> {editingFAQ ? 'Update' : 'Create'}</>}
                                         </motion.button>
                                     </div>
                                 </div>
@@ -292,21 +296,21 @@ export function FAQsManagement() {
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
                                 onClick={openAdd}
-                                className="relative overflow-hidden bg-gradient-to-r from-orange-500/10 via-red-500/5 to-transparent border border-orange-500/20 rounded-2xl p-6 flex items-center justify-between group animate-none cursor-pointer transition-all duration-300"
+                                className="relative overflow-hidden bg-white/80 dark:bg-[#1a1a1a]/80 border border-orange-500/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group animate-none cursor-pointer transition-all duration-300 shadow-sm max-w-3xl"
                             >
                                 <div className="absolute right-0 top-0 -translate-y-12 translate-x-12 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-orange-500/20 transition-all duration-500" />
                                 <div>
-                                    <h2 className="text-xl font-bold text-[#F24C20] dark:text-white flex items-center gap-2">
+                                    <h2 className="text-lg font-bold text-[#F24C20] dark:text-white flex items-center gap-2">
                                         <Zap className="w-5 h-5 text-[#F24C20]" />
                                         Create New FAQ
                                     </h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-md">Add clear, helpful answers to help users navigate and solve common platform issues quickly.</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md" style={{ marginLeft: '28px', marginTop: '10px' }}>Add clear, helpful answers to help users navigate and solve common platform issues quickly.</p>
                                 </div>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={(e) => { e.stopPropagation(); openAdd(); }}
-                                    className="bg-[#F24C20] hover:bg-[#E23C10] text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2"
+                                    className="w-fit px-6 h-12 bg-[#F24C20] hover:bg-[#E23C10] text-white rounded-full font-bold shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 ml-auto mr-2"
                                 >
                                     <Plus className="w-5 h-5" />
                                     Add FAQ
@@ -320,19 +324,14 @@ export function FAQsManagement() {
                 <div className="xl:col-span-12 space-y-4">
                     {/* Search */}
                     <div className="relative">
-                        {!(isSearchFocused || search) && (
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                        )}
+                        <Search className="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" style={{ left: '18px' }} />
                         <input
                             type="text"
                             placeholder="Search FAQs by question or category..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            onFocus={() => setIsSearchFocused(true)}
-                            onBlur={() => setIsSearchFocused(false)}
-                            className={`w-full pr-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-transparent transition-all duration-300 ${
-                                isSearchFocused || search ? 'pl-4' : 'pl-[52px]'
-                            }`}
+                            className="w-full h-16 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] pr-4 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200"
+                            style={{ paddingLeft: '44px' }}
                         />
                     </div>
 

@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Rocket, User, Calendar, Star, MoreVertical } from 'lucide-react';
+import { Search, Rocket, User, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function InvestorOpportunitiesManagement() {
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'https://backendapis.goexperts.in';
 
@@ -48,19 +47,14 @@ export function InvestorOpportunitiesManagement() {
 
       <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#262626] p-6 space-y-4">
         <div className="relative">
-          {!(isFocused || searchTerm) && (
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          )}
+          <Search className="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" style={{ left: '18px' }} />
           <input
             type="text"
             placeholder="Search by investor or startup idea..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            className={`w-full pr-4 py-3 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#262626] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F24C20] dark:text-white text-gray-900 placeholder:text-gray-500 transition-all ${
-              isFocused || searchTerm ? 'pl-4' : 'pl-11'
-            }`}
+            className="w-full pr-4 py-3 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#262626] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F24C20] dark:text-white text-gray-900 placeholder:text-gray-500 transition-all"
+            style={{ paddingLeft: '44px' }}
           />
         </div>
 

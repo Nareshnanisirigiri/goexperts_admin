@@ -136,6 +136,107 @@ export function EmailSettings({ onNavigate }: EmailSettingsProps) {
       </div>
     );
   }
+  if (editingTemplate) {
+    return (
+      <div className="space-y-6">
+        <Breadcrumb
+          items={[
+            { label: 'Site Management', path: 'pages' },
+            { label: 'Email Settings', path: 'email-settings' },
+            { label: `Edit ${editingTemplate.name}` }
+          ]}
+          onNavigate={(path) => {
+            if (path === 'email-settings') {
+              setEditingTemplate(null);
+            } else {
+              onNavigate(path);
+            }
+          }}
+        />
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-[#262626] pb-5">
+          <div>
+            <h1 className="text-3xl font-bold text-[#044071] dark:text-white mb-2 flex items-center gap-2">
+              <Mail className="w-8 h-8 text-[#F24C20]" />
+              Edit Email Template
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">Modify subject line, status, and message body for {editingTemplate.name}</p>
+          </div>
+          <button
+            onClick={() => setEditingTemplate(null)}
+            className="w-fit px-6 h-11 rounded-full border border-[#F24C20] text-[#F24C20] dark:text-white hover:bg-[#F24C20] hover:text-white transition-all font-bold ml-auto md:ml-0"
+          >
+            ← Back to Settings
+          </button>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626] shadow-lg"
+        >
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-2 uppercase tracking-wider">Subject Line</label>
+                <input
+                  type="text"
+                  value={editForm.subject}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, subject: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] text-gray-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-2 uppercase tracking-wider">Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] text-gray-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-650 dark:text-gray-400 mb-2 uppercase tracking-wider">Email Body (HTML supported)</label>
+              <div className="bg-orange-50/50 dark:bg-orange-950/10 border border-orange-200/50 dark:border-orange-900/30 rounded-xl p-4 mb-3">
+                <p className="text-xs text-orange-800 dark:text-orange-300 font-semibold mb-1">Available placeholders:</p>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <code className="px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 rounded text-orange-900 dark:text-orange-200 font-mono">{`{name}`}</code>
+                  <code className="px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 rounded text-orange-900 dark:text-orange-200 font-mono">{`{link}`}</code>
+                </div>
+              </div>
+              <textarea
+                style={{ height: '190px' }}
+                value={editForm.body}
+                onChange={(e) => setEditForm(prev => ({ ...prev, body: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] text-gray-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] font-mono text-sm resize-y"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-gray-100 dark:border-[#262626] pt-5">
+              <button
+                onClick={() => setEditingTemplate(null)}
+                className="px-6 py-3 rounded-xl border border-gray-200 dark:border-[#262626] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#262626] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTemplate}
+                disabled={saving}
+                className="bg-[#F24C20] hover:bg-[#d43a12] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 disabled:opacity-50 transition-all"
+              >
+                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                {saving ? 'Saving...' : 'Save Template'}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -322,10 +423,11 @@ export function EmailSettings({ onNavigate }: EmailSettingsProps) {
 
           <button
             onClick={handleTestEmail}
-            className="w-full bg-[#044071] hover:bg-[#033559] text-white px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2"
+            disabled={testing}
+            className="w-full bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-50 text-white px-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-all"
           >
-            <Send className="w-5 h-5" />
-            Send Test Email
+            {testing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            {testing ? 'Sending...' : 'Send Test Email'}
           </button>
 
           {testEmailSent && (
@@ -409,7 +511,8 @@ export function EmailSettings({ onNavigate }: EmailSettingsProps) {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleEditTemplate(template)}
-                        className="px-4 py-2 rounded-lg border border-[#044071] text-[#044071] dark:text-white hover:bg-[#044071] hover:text-white transition-colors text-sm font-medium">
+                        className="px-4 py-2 rounded-lg border border-[#F24C20] text-[#F24C20] dark:text-white hover:!bg-black dark:hover:!bg-white hover:!border-black dark:hover:!border-white hover:!text-white dark:hover:!text-black bg-transparent transition-all text-sm font-medium"
+                      >
                         Edit Template
                       </button>
                     </div>
@@ -421,74 +524,6 @@ export function EmailSettings({ onNavigate }: EmailSettingsProps) {
         </div>
       </motion.div>
 
-      {/* Edit Template Modal */}
-      <AnimatePresence>
-        {editingTemplate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
-              <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#262626] p-6 flex justify-between items-center z-10">
-                <h3 className="text-xl font-bold text-[#044071] dark:text-white">Edit {editingTemplate.name}</h3>
-                <button onClick={() => setEditingTemplate(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-full transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="p-6 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Subject Line</label>
-                  <input
-                    type="text"
-                    value={editForm.subject}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, subject: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-transparent focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Status</label>
-                  <select
-                    value={editForm.status}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-transparent focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Email Body (HTML supported)</label>
-                  <p className="text-xs text-gray-500 mb-2">Available variables: {`{name}`}, {`{link}`}</p>
-                  <textarea
-                    rows={8}
-                    value={editForm.body}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, body: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#262626] bg-transparent focus:outline-none focus:ring-2 focus:ring-[#F24C20] font-mono text-sm"
-                  />
-                </div>
-              </div>
-              <div className="sticky bottom-0 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#262626] p-6 flex justify-end gap-3 z-10">
-                <button
-                  onClick={() => setEditingTemplate(null)}
-                  className="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-[#262626] font-medium hover:bg-gray-50 dark:hover:bg-[#262626] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdateTemplate}
-                  disabled={saving}
-                  className="bg-[#F24C20] hover:bg-[#d43a12] text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  {saving ? 'Saving...' : 'Save Template'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </>
   );
 }

@@ -70,16 +70,117 @@ export function ContactMessages() {
     m.subject.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  if (selectedMessage) {
+    return (
+      <div className="space-y-6">
+        {/* Header & Back Button */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSelectedMessage(null)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-semibold transition-all duration-200 text-gray-700 dark:text-gray-200 shadow-sm"
+            >
+              <span>&larr;</span> Back to Inquiries
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-[#044071] dark:text-white">Inquiry Details</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Reviewing inquiry from {selectedMessage.name}</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={async () => {
+              await deleteMessage(selectedMessage._id);
+            }}
+            className="flex items-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
+            title="Delete Inquiry"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete Message
+          </button>
+        </div>
+
+        {/* Message Details Page Card */}
+        <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-200 dark:border-[#262626] p-8 shadow-sm space-y-8 max-w-4xl">
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6 rounded-2xl bg-gray-55/10 dark:bg-[#262626]/20 border border-gray-100 dark:border-[#262626]/40">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Sender Name</span>
+              <div className="flex items-center gap-2 font-semibold text-gray-950 dark:text-white text-sm">
+                <User className="w-4 h-4 text-gray-400" />
+                {selectedMessage.name}
+              </div>
+            </div>
+            <div className="space-y-1 min-w-0">
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Email Address</span>
+              <div className="flex items-center gap-2 font-semibold text-gray-950 dark:text-white text-sm truncate">
+                <Mail className="w-4 h-4 text-gray-400" />
+                <span className="truncate" title={selectedMessage.email}>{selectedMessage.email}</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Phone Number</span>
+              <div className="flex items-center gap-2 font-semibold text-gray-950 dark:text-white text-sm">
+                <Phone className="w-4 h-4 text-gray-400" />
+                {selectedMessage.phoneNumber || 'Not Provided'}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Received Date</span>
+              <div className="flex items-center gap-2 font-semibold text-gray-950 dark:text-white text-sm">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                {new Date(selectedMessage.createdAt).toLocaleString()}
+              </div>
+            </div>
+          </div>
+
+          {/* Subject Area */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Subject</span>
+            <h2 className="text-lg font-bold text-[#044071] dark:text-blue-400 bg-gray-50 dark:bg-[#262626]/20 p-5 rounded-2xl border border-gray-100 dark:border-[#262626]/30 leading-snug">
+              {selectedMessage.subject}
+            </h2>
+          </div>
+
+          {/* Message Body Area */}
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">Message Body</span>
+            <div className="p-8 bg-gray-50 dark:bg-[#262626]/10 rounded-2xl border border-gray-100 dark:border-[#262626]/20 whitespace-pre-wrap leading-relaxed text-gray-850 dark:text-gray-200 text-sm min-h-[220px]">
+              {selectedMessage.message}
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 dark:border-[#262626]">
+            <button
+              onClick={() => setSelectedMessage(null)}
+              className="px-6 py-3 rounded-xl border border-gray-200 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-semibold transition-colors"
+            >
+              Back to Inquiries
+            </button>
+            <a
+              href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`}
+              className="px-6 py-3 rounded-xl font-bold bg-[#F24C20] text-white hover:bg-orange-600 transition-all flex items-center gap-2 shadow-lg shadow-[#F24C20]/20 text-sm"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Reply via Email
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Contact Inquiries</h1>
-          <p className="text-gray-500 text-sm">Review and respond to user messages from the frontend.</p>
+          <p className="text-gray-550 text-sm">Review and respond to user messages from the frontend.</p>
         </div>
         
         <div className="relative max-w-sm w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-405" />
           <input
             type="text"
             placeholder="Search by name, email or subject..."
@@ -159,103 +260,6 @@ export function ContactMessages() {
           </table>
         </div>
       </div>
-
-      {/* Message View Modal */}
-      <AnimatePresence>
-        {selectedMessage && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white dark:bg-[#1a1a1a] rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-[#262626]"
-            >
-              <div className="p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between bg-gray-50/50 dark:bg-[#262626]/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#F24C20]/10 flex items-center justify-center text-[#F24C20]">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold">Message Details</h3>
-                    <p className="text-xs text-gray-500">ID: {selectedMessage._id}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setSelectedMessage(null)}
-                  className="p-2 hover:bg-gray-200 dark:hover:bg-[#262626] rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">From</label>
-                    <div className="flex items-center gap-2 font-medium">
-                      <User className="w-4 h-4 text-gray-400" />
-                      {selectedMessage.name}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Email</label>
-                    <div className="flex items-center gap-2 font-medium">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      {selectedMessage.email}
-                    </div>
-                  </div>
-                  {selectedMessage.phoneNumber && (
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Phone</label>
-                      <div className="flex items-center gap-2 font-medium">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        {selectedMessage.phoneNumber}
-                      </div>
-                    </div>
-                  )}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date Sent</label>
-                    <div className="flex items-center gap-2 font-medium">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      {new Date(selectedMessage.createdAt).toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Subject</label>
-                  <div className="p-4 bg-gray-50 dark:bg-[#262626] rounded-xl font-bold text-[#044071] dark:text-blue-400">
-                    {selectedMessage.subject}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Message Body</label>
-                  <div className="p-6 bg-gray-50 dark:bg-[#262626] rounded-2xl whitespace-pre-wrap leading-relaxed text-gray-700 dark:text-gray-300 min-h-[150px]">
-                    {selectedMessage.message}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 border-t border-gray-100 dark:border-[#262626] bg-gray-50/50 dark:bg-[#262626]/50 flex justify-end gap-3">
-                <button
-                  onClick={() => setSelectedMessage(null)}
-                  className="px-6 py-2.5 rounded-xl font-bold bg-gray-200 hover:bg-gray-300 dark:bg-[#262626] dark:hover:bg-[#333] transition-all"
-                >
-                  Close
-                </button>
-                <a
-                  href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`}
-                  className="px-6 py-2.5 rounded-xl font-bold bg-[#F24C20] text-white hover:bg-orange-600 transition-all flex items-center gap-2 shadow-lg shadow-[#F24C20]/20"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Reply via Email
-                </a>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

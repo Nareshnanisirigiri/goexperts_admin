@@ -524,7 +524,8 @@ export function AdminLayout({
             <div className="relative w-full">
               <button
                 type="submit"
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                style={{ left: '18px' }}
                 title="Search"
               >
                 <Search className="w-5 h-5" />
@@ -534,10 +535,11 @@ export function AdminLayout({
                 placeholder="Search users, projects, gigs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full pl-10 pr-10 py-2 rounded-lg ${darkMode
+                className={`w-full pr-10 py-2 rounded-lg ${darkMode
                   ? 'bg-[#262626] border-[#262626] text-white'
                   : 'bg-gray-50 border-gray-200'
                   } border focus:outline-none focus:ring-2 focus:ring-[#F24C20]`}
+                style={{ paddingLeft: '46px' }}
               />
               {searchQuery && (
                 <button
@@ -817,12 +819,16 @@ export function AdminLayout({
                     <>
                       <button
                         onClick={() => toggleMenu(item.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${currentPage === item.id || item.submenu.some(s => s.id === currentPage)
-                          ? 'bg-[#F24C20] text-white'
-                          : darkMode
-                            ? 'hover:bg-[#262626] text-gray-300'
-                            : 'hover:bg-gray-100 text-gray-700'
-                          }`}
+                        style={currentPage === item.id ? { background: 'linear-gradient(135deg, #F24C20 0%, #d43a12 50%, #044071 100%)' } : undefined}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                          currentPage === item.id
+                            ? 'text-white'
+                            : item.submenu.some(s => s.id === currentPage)
+                              ? 'bg-[#F24C20] text-white'
+                              : darkMode
+                                ? 'hover:bg-[#262626] text-gray-300'
+                                : 'hover:bg-gray-100 text-gray-700'
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           {item.icon}
@@ -846,8 +852,9 @@ export function AdminLayout({
                               <button
                                 key={subItem.id}
                                 onClick={() => onNavigate(subItem.id)}
+                                style={currentPage === subItem.id ? { background: 'linear-gradient(135deg, #F24C20 0%, #d43a12 50%, #044071 100%)' } : undefined}
                                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${currentPage === subItem.id
-                                  ? 'bg-[#F24C20] text-white'
+                                  ? 'text-white'
                                   : darkMode
                                     ? 'hover:bg-[#262626] text-gray-400'
                                     : 'hover:bg-gray-100 text-gray-600'
@@ -864,8 +871,9 @@ export function AdminLayout({
                   ) : (
                     <button
                       onClick={() => onNavigate(item.id)}
+                      style={currentPage === item.id ? { background: 'linear-gradient(135deg, #F24C20 0%, #d43a12 50%, #044071 100%)' } : undefined}
                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${currentPage === item.id
-                        ? 'bg-[#F24C20] text-white'
+                        ? 'text-white'
                         : darkMode
                           ? 'hover:bg-[#262626] text-gray-300'
                           : 'hover:bg-gray-100 text-gray-700'

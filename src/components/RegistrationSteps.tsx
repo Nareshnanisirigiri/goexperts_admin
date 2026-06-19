@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     Plus,
@@ -25,6 +24,7 @@ import {
 
 import { toast } from 'sonner';
 import api from '../lib/api';
+import { Breadcrumb } from './Breadcrumb';
 
 /* ================= TYPES ================= */
 
@@ -52,7 +52,11 @@ interface RegistrationStep {
 
 /* ================= PAGE ================= */
 
-export const RegistrationSteps = () => {
+interface RegistrationStepsProps {
+    onNavigate?: (page: string) => void;
+}
+
+export const RegistrationSteps = ({ onNavigate }: RegistrationStepsProps) => {
     const [steps, setSteps] = useState<RegistrationStep[]>([]);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -143,6 +147,327 @@ export const RegistrationSteps = () => {
             setLoading(false);
         }
     };
+
+    if (isEditing && currentStep) {
+        const isSelection = currentStep.type === 'single-selection' || currentStep.type === 'multi-selection';
+
+        return (
+            <div className="space-y-6">
+                <Breadcrumb
+                    items={[
+                        { label: 'Site Management', path: 'pages' },
+                        { label: 'Registration Flow', path: 'registration-flow' },
+                        { label: currentStep._id ? `Edit Step: ${currentStep.label || 'Logic Step'}` : 'Add New Step' }
+                    ]}
+                    onNavigate={(path) => {
+                        if (path === 'registration-flow') {
+                            setIsEditing(false);
+                        } else {
+                            onNavigate?.(path);
+                        }
+                    }}
+                />
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-[#262626] pb-5">
+                    <div>
+                        <h1 className="text-3xl font-bold text-[#044071] dark:text-white mb-2 flex items-center gap-2 font-heading">
+                            <Settings2 className="w-8 h-8 text-[#F24C20]" />
+                            {currentStep._id ? 'Edit Registration Step' : 'Add Registration Step'}
+                        </h1>
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">Configure logic module, field keys, localization, target roles, and selectable choices</p>
+                    </div>
+                    <button
+                        onClick={() => setIsEditing(false)}
+                        className="w-fit px-6 rounded-full border border-[#F24C20] text-[#F24C20] dark:text-white hover:bg-[#F24C20] hover:text-white transition-all font-bold ml-auto md:ml-0 active:scale-95 flex items-center justify-center"
+                        style={{ height: '40px' }}
+                    >
+                        ← Back to Steps
+                    </button>
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white dark:bg-[#121212] rounded-[2.5rem] w-full border border-gray-200/50 dark:border-white/10 shadow-xl overflow-hidden transition-all duration-300"
+                >
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-8 py-5 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-[#1a1a1a]">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-2xl bg-[#F24C20]/10 flex items-center justify-center text-[#F24C20]">
+                                <Settings2 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-none mb-1 font-heading">Logic Configuration</h2>
+                                <p className="text-[11px] text-gray-500 font-medium">Fine-tune this step's behavior</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-8 py-8 bg-gray-50/30 dark:bg-[#121212]">
+                        <div className={`grid grid-cols-1 ${isSelection ? 'lg:grid-cols-12' : ''} gap-8 items-start`}>
+                            {/* GENERAL CONFIGURATION */}
+                            <section className={isSelection ? 'lg:col-span-5 space-y-6' : 'space-y-6 max-w-2xl mx-auto w-full'}>
+                                <div className="flex items-center gap-3 mb-5">
+                                    <div className="p-2 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                        <ListChecks className="w-4 h-4 text-blue-500" />
+                                    </div>
+                                    <h3 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-widest opacity-80">General Attributes</h3>
+                                </div>
+
+                                <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200/60 dark:border-white/5 rounded-3xl p-6 space-y-6 shadow-sm">
+                                    <div className="flex flex-col gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Logic Module</label>
+                                            <select
+                                                value={currentStep.module || 'onboarding'}
+                                                onChange={e => setCurrentStep({ ...currentStep, module: e.target.value as any })}
+                                                className="w-full h-16 bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl px-6 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all font-semibold text-gray-900 dark:text-white"
+                                            >
+                                                <option value="onboarding">User Onboarding Flow</option>
+                                                <option value="project_finder">Project Finder Filter</option>
+                                                <option value="talent_finder">Talent Finder Flow</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Internal Reference</label>
+                                            <input
+                                                placeholder="e.g. Account Type"
+                                                value={currentStep.label || ''}
+                                                onChange={e => setCurrentStep({ ...currentStep, label: e.target.value })}
+                                                className="w-full h-16 bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl px-6 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all font-semibold text-gray-900 dark:text-white"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Public Question Title</label>
+                                            <input
+                                                placeholder="e.g. What brings you here?"
+                                                value={currentStep.title || ''}
+                                                onChange={e => setCurrentStep({ ...currentStep, title: e.target.value })}
+                                                className="w-full h-16 bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl px-6 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all font-semibold text-gray-900 dark:text-white"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
+                                        <textarea
+                                            placeholder="Add more context for the user..."
+                                            value={currentStep.description || ''}
+                                            onChange={e => setCurrentStep({ ...currentStep, description: e.target.value })}
+                                            style={{ height: '190px' }}
+                                            className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all resize-none font-medium text-gray-900 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-6 pt-6 border-t border-gray-100 dark:border-white/5">
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Database Field Key</label>
+                                            <div className="relative group">
+                                                <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#F24C20] w-4 h-4 transition-colors" />
+                                                <input
+                                                    placeholder="e.g. account_type"
+                                                    value={currentStep.field || ''}
+                                                    onChange={e => setCurrentStep({ ...currentStep, field: e.target.value })}
+                                                    className="w-full h-16 bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm font-mono focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all text-gray-900 dark:text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Input Type</label>
+                                            <div className="relative">
+                                                <select
+                                                    value={currentStep.type}
+                                                    onChange={e => setCurrentStep({ ...currentStep, type: e.target.value as any })}
+                                                    className="w-full h-16 bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl px-6 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all appearance-none cursor-pointer font-semibold text-gray-900 dark:text-white"
+                                                >
+                                                    <option value="single-selection">Single Selection List</option>
+                                                    <option value="multi-selection">Multiple Selection List</option>
+                                                    <option value="input">Text Input Field</option>
+                                                    <option value="otp-verification">OTP Verification</option>
+                                                    <option value="account-creation">Account Creation Form</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-white/5">
+                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Applicable Roles (Empty if all)</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {['freelancer', 'client', 'investor', 'startup_creator'].map(role => {
+                                                const isSelected = currentStep.applicableRoles?.includes(role);
+                                                return (
+                                                    <button
+                                                        key={role}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const currentRoles = currentStep.applicableRoles || [];
+                                                            const nextRoles = isSelected 
+                                                                ? currentRoles.filter((r: string) => r !== role)
+                                                                : [...currentRoles, role];
+                                                            setCurrentStep({ ...currentStep, applicableRoles: nextRoles });
+                                                        }}
+                                                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all border ${
+                                                            isSelected 
+                                                            ? 'bg-[#F24C20] text-white border-[#F24C20]' 
+                                                            : 'bg-gray-50 dark:bg-white/5 text-gray-400 border-gray-200 dark:border-white/10 hover:border-[#F24C20] hover:text-[#F24C20]'
+                                                        }`}
+                                                    >
+                                                        {role.replace('_', ' ').toUpperCase()}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 italic">If no role is selected, this step will be shown to everyone.</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* SELECTION OPTIONS */}
+                            {isSelection && (
+                                <section className="lg:col-span-7 space-y-6">
+                                    <div className="flex items-center justify-between mb-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
+                                                <List className="w-4 h-4 text-[#F24C20]" />
+                                            </div>
+                                            <h3 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-widest opacity-80">Selectable Choices</h3>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCurrentStep({ ...currentStep, options: [...(currentStep.options || []), { label: '', value: '', icon: '', subtitle: '' }] })}
+                                            className="text-[#F24C20] text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#F24C20] hover:text-white px-5 rounded-xl bg-[#F24C20]/10 border border-[#F24C20]/20 hover:border-[#F24C20] transition-all active:scale-95 w-full"
+                                            style={{ height: '40px' }}
+                                        >
+                                            <Plus className="w-4 h-4" /> ADD CHOICE
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <AnimatePresence>
+                                            {currentStep.options?.map((opt: any, idx: number) => (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    key={idx}
+                                                    className="bg-white dark:bg-[#1a1a1a] border border-gray-200/60 dark:border-white/5 rounded-3xl p-6 pb-8 group shadow-sm"
+                                                    style={{ position: 'relative' }}
+                                                >
+                                                    <div className="flex flex-col gap-5 relative z-10 pr-12">
+                                                        <div className="space-y-1.5 relative">
+                                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Display Label</label>
+                                                            <input
+                                                                placeholder="e.g. Design & Creative"
+                                                                value={opt.label || ''}
+                                                                onChange={(e) => {
+                                                                    const newOptions = [...(currentStep.options || [])];
+                                                                    newOptions[idx] = { ...newOptions[idx], label: e.target.value };
+                                                                    if (!newOptions[idx].value) newOptions[idx].value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+                                                                    setCurrentStep({ ...currentStep, options: newOptions });
+                                                                }}
+                                                                className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all font-semibold text-gray-900 dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1.5 relative">
+                                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Internal Value ID</label>
+                                                            <input
+                                                                placeholder="e.g. design"
+                                                                value={opt.value || ''}
+                                                                onChange={(e) => {
+                                                                    const newOptions = [...(currentStep.options || [])];
+                                                                    newOptions[idx] = { ...newOptions[idx], value: e.target.value };
+                                                                    setCurrentStep({ ...currentStep, options: newOptions });
+                                                                }}
+                                                                className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm font-mono text-gray-600 dark:text-gray-400 focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all"
+                                                            />
+                                                        </div>
+
+                                                        <div className="space-y-1.5 relative">
+                                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1 flex items-center gap-1.5">
+                                                                <Settings2 className="w-3 h-3" /> Icon Name
+                                                            </label>
+                                                            <input
+                                                                placeholder="e.g. Briefcase"
+                                                                value={opt.icon || ''}
+                                                                onChange={(e) => {
+                                                                    const newOptions = [...(currentStep.options || [])];
+                                                                    newOptions[idx] = { ...newOptions[idx], icon: e.target.value };
+                                                                    setCurrentStep({ ...currentStep, options: newOptions });
+                                                                }}
+                                                                className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all text-gray-900 dark:text-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1.5 relative">
+                                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Description Hint</label>
+                                                            <input
+                                                                placeholder="Short subtext..."
+                                                                value={opt.subtitle || ''}
+                                                                onChange={(e) => {
+                                                                    const newOptions = [...(currentStep.options || [])];
+                                                                    newOptions[idx] = { ...newOptions[idx], subtitle: e.target.value };
+                                                                    setCurrentStep({ ...currentStep, options: newOptions });
+                                                                }}
+                                                                className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all text-gray-900 dark:text-white"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Delete Button overlaid */}
+                                                    <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 20 }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newOptions = currentStep.options.filter((_: any, i: number) => i !== idx);
+                                                                setCurrentStep({ ...currentStep, options: newOptions });
+                                                            }}
+                                                            className="w-10 h-10 bg-white dark:bg-[#222] border border-gray-200 dark:border-white/10 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 rounded-full flex items-center justify-center transition-all shadow-sm active:scale-95"
+                                                            title="Remove choice"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
+
+                                        {(!currentStep.options || currentStep.options?.length === 0) && (
+                                            <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl bg-white dark:bg-[#1a1a1a]">
+                                                <div className="bg-gray-50 dark:bg-[#222] w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-white/5">
+                                                    <List className="w-6 h-6 text-gray-400" />
+                                                </div>
+                                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">Empty Choices</h4>
+                                                <p className="text-sm text-gray-500 mt-1 max-w-[250px] mx-auto">Add selectable options for the user to pick from in this step.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-8 py-5 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#1a1a1a] flex justify-end gap-3 flex-shrink-0 flex-grow-0">
+                        <button
+                            onClick={() => setIsEditing(false)}
+                            className="rounded-2xl text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#222] font-bold transition-colors text-xs border border-gray-200 dark:border-white/10 flex items-center justify-center active:scale-95"
+                            style={{ width: '190px', height: '40px' }}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={saveStep}
+                            className="bg-[#F24C20] hover:bg-[#d43a12] text-white rounded-2xl font-bold shadow-lg shadow-[#F24C20]/25 active:scale-95 transition-all text-xs flex items-center justify-center gap-2"
+                            style={{ width: '190px', height: '40px' }}
+                        >
+                            <CheckCircle2 className="w-4 h-4" /> Save Changes
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
@@ -305,18 +630,19 @@ export const RegistrationSteps = () => {
                                     {/* Header: Order & Status */}
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:bg-[#F24C20] group-hover:text-white transition-colors duration-300">
+                                            <div className="w-10 h-10 rounded-2xl bg-gray-500/10 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex items-center justify-center text-sm font-bold text-gray-400 group-hover:bg-[#F24C20] group-hover:text-white transition-colors duration-300">
                                                 {step.order}
                                             </div>
-                                            <div className="p-2 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400">
+                                            <div className="p-2 rounded-xl bg-gray-500/10 dark:bg-white/5 border border-gray-100 dark:border-white/5 text-gray-400">
                                                 <TypeIcon className="w-4 h-4" />
                                             </div>
                                         </div>
                                         <span
-                                            className={`text-[10px] font-bold px-3 py-1 rounded-full tracking-wider ${step.isActive
-                                                ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400'
-                                                : 'bg-gray-100 text-gray-400 dark:bg-white/5 dark:text-gray-500'
-                                                }`}
+                                            className={`text-[10px] font-bold px-3 py-1 rounded-full tracking-wider border ${
+                                                step.isActive
+                                                    ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20'
+                                                    : 'bg-gray-500/10 text-gray-500 dark:text-gray-400 border-gray-500/20'
+                                            }`}
                                         >
                                             {step.isActive ? 'ACTIVE' : 'DRAFT'}
                                         </span>
@@ -339,14 +665,14 @@ export const RegistrationSteps = () => {
 
                                     {/* Type Badge */}
                                     <div className="mt-4 flex items-center gap-2">
-                                        <div className="px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-gray-500 uppercase">
+                                        <div className="px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">
                                                 {step.type.replace('-', ' ')}
                                             </span>
                                         </div>
                                         {step.options?.length > 0 && (
-                                            <div className="px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
-                                                <span className="text-[10px] font-bold text-gray-500">
+                                            <div className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                                                <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400">
                                                     {step.options.length} OPTIONS
                                                 </span>
                                             </div>
@@ -390,316 +716,6 @@ export const RegistrationSteps = () => {
                     </AnimatePresence>
                 </div>
             )}
-
-            <EditModal
-                open={isEditing}
-                onClose={() => setIsEditing(false)}
-                step={currentStep}
-                setStep={setCurrentStep}
-                onSave={saveStep}
-            />
         </div>
     );
 }
-
-/* ================= MODAL ================= */
-
-function EditModal({ open, onClose, step, setStep, onSave }: any) {
-    if (!open) return null;
-
-    return createPortal(
-        <AnimatePresence>
-            <motion.div
-                className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 sm:p-6 backdrop-blur-xl"
-                style={{ zIndex: 999999 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-            >
-                <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="bg-white dark:bg-[#121212] rounded-[2.5rem] w-full max-w-md shadow-2xl relative flex flex-col h-[85vh] overflow-hidden border border-gray-200/50 dark:border-white/10"
-                    style={{ zIndex: 1000000 }}
-                >
-                    {/* Header */}
-                    <div className="flex justify-between items-center px-8 py-5 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-2xl bg-[#F24C20]/10 flex items-center justify-center text-[#F24C20]">
-                                <Settings2 className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-none mb-1">Logic Configuration</h2>
-                                <p className="text-[11px] text-gray-500 font-medium">Fine-tune this step's behavior</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl transition-all text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                            title="Close"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-
-                    {/* Scrollable Body */}
-                    <div className="px-8 py-8 overflow-y-auto min-h-0 space-y-10 flex-1 bg-gray-50/30 dark:bg-[#121212] custom-scrollbar">
-                        {/* GENERAL CONFIGURATION */}
-                        <section>
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
-                                    <ListChecks className="w-4 h-4 text-blue-500" />
-                                </div>
-                                <h3 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-widest opacity-80">General Attributes</h3>
-                            </div>
-
-                            <div className="bg-white dark:bg-[#1a1a1a] border border-gray-200/60 dark:border-white/5 rounded-3xl p-6 space-y-6 shadow-sm">
-                                <div className="flex flex-col gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Logic Module</label>
-                                        <select
-                                            value={step?.module || 'onboarding'}
-                                            onChange={e => setStep({ ...step, module: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all font-semibold text-gray-900 dark:text-white"
-                                        >
-                                            <option value="onboarding">User Onboarding Flow</option>
-                                            <option value="project_finder">Project Finder Filter</option>
-                                            <option value="talent_finder">Talent Finder Flow</option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Internal Reference</label>
-                                        <input
-                                            placeholder="e.g. Account Type"
-                                            value={step?.label || ''}
-                                            onChange={e => setStep({ ...step, label: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all font-semibold text-gray-900 dark:text-white"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Public Question Title</label>
-                                        <input
-                                            placeholder="e.g. What brings you here?"
-                                            value={step?.title || ''}
-                                            onChange={e => setStep({ ...step, title: e.target.value })}
-                                            className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all font-semibold text-gray-900 dark:text-white"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Description (Optional)</label>
-                                    <textarea
-                                        placeholder="Add more context for the user..."
-                                        value={step?.description || ''}
-                                        onChange={e => setStep({ ...step, description: e.target.value })}
-                                        rows={2}
-                                        className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all resize-none font-medium text-gray-900 dark:text-white"
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-6 pt-6 border-t border-gray-100 dark:border-white/5">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Database Field Key</label>
-                                        <div className="relative group">
-                                            <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#F24C20] w-4 h-4 transition-colors" />
-                                            <input
-                                                placeholder="e.g. account_type"
-                                                value={step?.field || ''}
-                                                onChange={e => setStep({ ...step, field: e.target.value })}
-                                                className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm font-mono focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all text-gray-900 dark:text-white"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Input Type</label>
-                                        <div className="relative">
-                                            <select
-                                                value={step?.type}
-                                                onChange={e => setStep({ ...step, type: e.target.value })}
-                                                className="w-full bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 transition-all appearance-none cursor-pointer font-semibold text-gray-900 dark:text-white"
-                                            >
-                                                <option value="single-selection">Single Selection List</option>
-                                                <option value="multi-selection">Multiple Selection List</option>
-                                                <option value="input">Text Input Field</option>
-                                                <option value="otp-verification">OTP Verification</option>
-                                                <option value="account-creation">Account Creation Form</option>
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-white/5">
-                                    <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Applicable Roles (Empty if all)</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {['freelancer', 'client', 'investor', 'startup_creator'].map(role => {
-                                            const isSelected = step?.applicableRoles?.includes(role);
-                                            return (
-                                                <button
-                                                    key={role}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const currentRoles = step?.applicableRoles || [];
-                                                        const nextRoles = isSelected 
-                                                            ? currentRoles.filter((r: string) => r !== role)
-                                                            : [...currentRoles, role];
-                                                        setStep({ ...step, applicableRoles: nextRoles });
-                                                    }}
-                                                    className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all border ${
-                                                        isSelected 
-                                                        ? 'bg-[#F24C20] text-white border-[#F24C20]' 
-                                                        : 'bg-gray-50 dark:bg-white/5 text-gray-400 border-gray-200 dark:border-white/10 hover:border-[#F24C20] hover:text-[#F24C20]'
-                                                    }`}
-                                                >
-                                                    {role.replace('_', ' ').toUpperCase()}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    <p className="text-[10px] text-gray-400 italic">If no role is selected, this step will be shown to everyone.</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* SELECTION OPTIONS */}
-                        {(step?.type === 'single-selection' || step?.type === 'multi-selection') && (
-                            <section>
-                                <div className="flex items-center justify-between mb-5">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
-                                            <List className="w-4 h-4 text-[#F24C20]" />
-                                        </div>
-                                        <h3 className="text-[13px] font-bold text-gray-900 dark:text-white uppercase tracking-widest opacity-80">Selectable Choices</h3>
-                                    </div>
-                                    <button
-                                        onClick={() => setStep({ ...step, options: [...(step.options || []), { label: '', value: '', icon: '', subtitle: '' }] })}
-                                        className="text-[#F24C20] text-xs font-bold flex items-center gap-2 hover:bg-[#F24C20] hover:text-white px-5 py-2.5 rounded-xl bg-[#F24C20]/10 border border-[#F24C20]/20 hover:border-[#F24C20] transition-all active:scale-95"
-                                    >
-                                        <Plus className="w-4 h-4" /> ADD CHOICE
-                                    </button>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <AnimatePresence>
-                                        {step.options?.map((opt: any, idx: number) => (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                key={idx}
-                                                className="bg-white dark:bg-[#1a1a1a] border border-gray-200/60 dark:border-white/5 rounded-3xl p-6 relative group overflow-hidden shadow-sm"
-                                            >
-                                                <div className="flex flex-col gap-5 relative z-10 pr-12">
-                                                    <div className="space-y-1.5 relative">
-                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Display Label</label>
-                                                        <input
-                                                            placeholder="e.g. Design & Creative"
-                                                            value={opt.label || ''}
-                                                            onChange={(e) => {
-                                                                const newOptions = [...(step.options || [])];
-                                                                newOptions[idx] = { ...newOptions[idx], label: e.target.value };
-                                                                if (!newOptions[idx].value) newOptions[idx].value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-                                                                setStep({ ...step, options: newOptions });
-                                                            }}
-                                                            className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all font-semibold text-gray-900 dark:text-white"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5 relative">
-                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Internal Value ID</label>
-                                                        <input
-                                                            placeholder="e.g. design"
-                                                            value={opt.value || ''}
-                                                            onChange={(e) => {
-                                                                const newOptions = [...(step.options || [])];
-                                                                newOptions[idx] = { ...newOptions[idx], value: e.target.value };
-                                                                setStep({ ...step, options: newOptions });
-                                                            }}
-                                                            className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm font-mono text-gray-600 dark:text-gray-400 focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all"
-                                                        />
-                                                    </div>
-
-                                                    <div className="space-y-1.5 relative">
-                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1 flex items-center gap-1.5">
-                                                            <Settings2 className="w-3 h-3" /> Icon Name
-                                                        </label>
-                                                        <input
-                                                            placeholder="e.g. Briefcase"
-                                                            value={opt.icon || ''}
-                                                            onChange={(e) => {
-                                                                const newOptions = [...(step.options || [])];
-                                                                newOptions[idx] = { ...newOptions[idx], icon: e.target.value };
-                                                                setStep({ ...step, options: newOptions });
-                                                            }}
-                                                            className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all text-gray-900 dark:text-white"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5 relative">
-                                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Description Hint</label>
-                                                        <input
-                                                            placeholder="Short subtext..."
-                                                            value={opt.subtitle || ''}
-                                                            onChange={(e) => {
-                                                                const newOptions = [...(step.options || [])];
-                                                                newOptions[idx] = { ...newOptions[idx], subtitle: e.target.value };
-                                                                setStep({ ...step, options: newOptions });
-                                                            }}
-                                                            className="w-full bg-gray-50 focus:bg-white dark:bg-[#222] border border-gray-200 dark:border-white/5 rounded-xl p-3 text-sm focus:border-[#F24C20] focus:ring-2 focus:ring-[#F24C20]/20 outline-none transition-all text-gray-900 dark:text-white"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                {/* Delete Button overlaid */}
-                                                <div className="absolute top-3 right-3 z-20">
-                                                    <button
-                                                        onClick={() => {
-                                                            const newOptions = step.options.filter((_: any, i: number) => i !== idx);
-                                                            setStep({ ...step, options: newOptions });
-                                                        }}
-                                                        className="w-10 h-10 bg-white dark:bg-[#222] border border-gray-200 dark:border-white/10 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95"
-                                                        title="Remove choice"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-
-                                    {(!step.options || step.options?.length === 0) && (
-                                        <div className="text-center py-12 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl bg-white dark:bg-[#1a1a1a]">
-                                            <div className="bg-gray-50 dark:bg-[#222] w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-white/5">
-                                                <List className="w-6 h-6 text-gray-400" />
-                                            </div>
-                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white">Empty Choices</h4>
-                                            <p className="text-sm text-gray-500 mt-1 max-w-[250px] mx-auto">Add selectable options for the user to pick from in this step.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-                        )}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="px-8 py-5 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#1a1a1a] flex justify-end gap-3 rounded-b-[2.5rem] flex-shrink-0 flex-grow-0">
-                        <button
-                            onClick={onClose}
-                            className="flex-1 px-6 py-3.5 rounded-2xl text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#222] font-bold transition-colors text-xs border border-transparent hover:border-gray-200 dark:hover:border-white/5"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={onSave}
-                            className="flex-[2] bg-[#F24C20] hover:bg-[#d43a12] text-white px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-[#F24C20]/25 active:scale-95 transition-all text-xs flex items-center justify-center gap-2"
-                        >
-                            <CheckCircle2 className="w-4 h-4" /> Save Changes
-                        </button>
-                    </div>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>,
-        document.body
-    );
-}
-

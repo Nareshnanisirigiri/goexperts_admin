@@ -148,31 +148,33 @@ export function MenusManagement({ onNavigate }: MenusManagementProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-[#F24C20]/30 p-6 mb-6"
+            className="bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-200 dark:border-[#262626] p-8 mb-6 shadow-sm"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{editingItem ? 'Edit Item' : 'New Menu Item'}</h2>
-              <button onClick={resetForm}><X className="w-5 h-5 text-gray-400" /></button>
+            <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-100 dark:border-[#262626]">
+              <h2 className="text-xl font-bold text-[#044071] dark:text-white">{editingItem ? 'Edit Menu Item' : 'New Menu Item'}</h2>
+              <button onClick={resetForm} className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-full transition-colors">
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Label *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Label *</label>
                 <input type="text" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })}
                   placeholder="e.g. About Us"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+                  className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">URL *</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">URL *</label>
                 <input type="text" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })}
                   placeholder="/about"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+                  className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Parent Item (optional)</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Parent Item (optional)</label>
                 <select value={form.parent} onChange={e => setForm({ ...form, parent: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+                  className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white cursor-pointer transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                 >
                   <option value="">None (Top Level)</option>
                   {topLevelItems.map(item => (
@@ -181,29 +183,29 @@ export function MenusManagement({ onNavigate }: MenusManagementProps) {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Sort Order</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Sort Order</label>
                 <input type="number" value={form.order} onChange={e => setForm({ ...form, order: Number(e.target.value) })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#262626] focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+                  className="w-full h-16 px-6 rounded-2xl border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#262626] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#F24C20] text-gray-950 dark:text-white transition-all duration-200 hover:border-gray-300 dark:hover:border-neutral-700"
                 />
               </div>
-              <div className="flex items-center gap-2 col-span-2">
+              <div className="flex items-center gap-2 col-span-2 mt-2">
                 <input type="checkbox" id="newTab" checked={form.open_in_new_tab}
                   onChange={e => setForm({ ...form, open_in_new_tab: e.target.checked })}
                   className="w-4 h-4 rounded text-[#F24C20]"
                 />
-                <label htmlFor="newTab" className="text-sm">Open in new tab</label>
+                <label htmlFor="newTab" className="text-sm font-medium text-gray-700 dark:text-gray-300">Open in new tab</label>
               </div>
             </div>
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-6">
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 onClick={handleSubmit}
                 disabled={saving}
-                className="flex items-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-medium"
+                className="flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white h-14 px-8 rounded-2xl font-bold text-sm shadow-md transition-all duration-200"
               >
                 <CheckCircle className="w-4 h-4" />
                 {saving ? 'Saving...' : editingItem ? 'Update Item' : 'Add Item'}
               </motion.button>
-              <button onClick={resetForm} className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626]">Cancel</button>
+              <button onClick={resetForm} className="h-14 px-8 rounded-2xl border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-200">Cancel</button>
             </div>
           </motion.div>
         )}

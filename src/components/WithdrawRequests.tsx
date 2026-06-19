@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle, X, Eye, Wallet, Calendar, CreditCard, DollarSign, TrendingUp, Settings, Loader2, PlusCircle } from 'lucide-react';
+import { CheckCircle, X, Eye, Wallet, Calendar, CreditCard, IndianRupee, TrendingUp, Settings, Loader2, PlusCircle, ArrowLeft } from 'lucide-react';
 import api from '../lib/api';
 import { toast } from 'sonner';
 
@@ -52,6 +52,9 @@ export function WithdrawRequests() {
       });
       if (response.data.success) {
         toast.success(`Withdrawal ${actionType} successfully`);
+        if (selectedWithdrawal && selectedWithdrawal._id === selectedRequestId) {
+          setSelectedWithdrawal((prev: any) => prev ? { ...prev, status: actionType } : null);
+        }
         fetchWithdrawals();
       }
     } catch (error: any) {
@@ -86,165 +89,280 @@ export function WithdrawRequests() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2 text-[#044071] dark:text-white">
-            Withdraw Requests
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Review and process credit-based withdrawal requests from live data
-          </p>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Pending Requests', value: withdrawals.filter(w => w.status === 'pending').length, icon: Wallet, color: 'bg-yellow-500' },
-          { label: 'Total Approved', value: withdrawals.filter(w => w.status === 'approved').length, icon: CheckCircle, color: 'bg-green-500' },
-          { label: 'Rejected', value: withdrawals.filter(w => w.status === 'rejected').length, icon: X, color: 'bg-red-500' },
-          { label: 'Total Volume', value: `₹${withdrawals.reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}`, icon: DollarSign, color: 'bg-[#044071]' }
-        ].map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white dark:bg-[#1a1a1a] p-6 rounded-xl border border-gray-200 dark:border-[#262626]"
+      {selectedWithdrawal ? (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Back Button */}
+          <button
+            onClick={() => setSelectedWithdrawal(null)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm w-fit shadow-sm theme-button transition-all duration-200"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
-                <p className="text-2xl font-bold mt-1">{stat.value}</p>
-              </div>
-              <div className={`${stat.color} p-3 rounded-lg`}>
-                <stat.icon className="w-6 h-6 text-white" />
+            <ArrowLeft className="w-4 h-4" />
+            Back to Withdraw Requests
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* User Information Card */}
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#262626] p-6 space-y-6 shadow-sm">
+              <h3 className="text-lg font-bold text-[#044071] dark:text-white">User Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Full Name</span>
+                  <p className="font-semibold text-lg theme-text-primary">{selectedWithdrawal.user?.full_name || 'Deleted User'}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Email Address</span>
+                  <p className="text-gray-600 dark:text-gray-400 theme-text-secondary">{selectedWithdrawal.user?.email || 'N/A'}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Wallet Balance</span>
+                  <p className="font-bold text-lg text-emerald-600 dark:text-emerald-400">₹{selectedWithdrawal.user?.wallet_balance?.toLocaleString() || 0}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Requested Date</span>
+                  <p className="text-sm theme-text-secondary">{new Date(selectedWithdrawal.created_at).toLocaleString()}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Status</span>
+                  <div className="mt-1">
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                      selectedWithdrawal.status === 'approved'
+                        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                        : selectedWithdrawal.status === 'pending'
+                          ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                          : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                    }`}>
+                      {selectedWithdrawal.status.charAt(0).toUpperCase() + selectedWithdrawal.status.slice(1)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
 
-      {/* Withdraw Requests Table */}
-      <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-[#0a0a0a]">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold">User</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Wallet Balance</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Requested Amount</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Method</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-[#262626]">
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
-                    <Loader2 className="w-10 h-10 text-[#F24C20] animate-spin mx-auto mb-2" />
-                    <p className="text-gray-500">Loading requests...</p>
-                  </td>
-                </tr>
-              ) : withdrawals.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    No withdrawal requests found.
-                  </td>
-                </tr>
-              ) : (
-                withdrawals.map((request, index) => (
-                  <motion.tr
-                    key={request._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="hover:bg-gray-50 dark:hover:bg-[#262626]/50 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="font-medium">{request.user?.full_name || 'Deleted User'}</div>
-                      <div className="text-xs text-gray-500">{request.user?.email}</div>
-                    </td>
-                    <td className="px-6 py-4 font-semibold text-gray-500">
-                      ₹{request.user?.wallet_balance?.toLocaleString() || 0}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-[#F24C20]">
-                      ₹{request.amount?.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium uppercase">{request.payment_method}</td>
-                    <td className="px-6 py-4 text-sm">
-                      {new Date(request.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'approved'
-                          ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                          : request.status === 'pending'
-                            ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-                            : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                        }`}>
-                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {request.status === 'pending' && (
-                          <>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleActionClick(request._id, 'approved')}
-                              className="p-2 hover:bg-green-100 dark:hover:bg-green-900/20 rounded-lg"
-                              title="Approve"
-                            >
-                              <CheckCircle className="w-4 h-4 text-green-600" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleActionClick(request._id, 'rejected')}
-                              className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg"
-                              title="Reject"
-                            >
-                              <X className="w-4 h-4 text-red-600" />
-                            </motion.button>
-                          </>
-                        )}
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => {
-                            setSelectedWithdrawal(request);
-                            setShowDetailsModal(true);
-                          }}
-                          className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded-lg"
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4 text-blue-600" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => {
-                            setAdjustingUser(request.user);
-                            setShowAdjustModal(true);
-                          }}
-                          className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/20 rounded-lg"
-                          title="Add Bonus / Adjust Balance"
-                        >
-                          <PlusCircle className="w-4 h-4 text-orange-600" />
-                        </motion.button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))
-              )}
-            </tbody>
-          </table>
+            {/* Payment Details & Transfer Info */}
+            <div className="lg:col-span-2 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#262626] p-6 space-y-6 shadow-sm">
+              <h3 className="text-lg font-bold text-[#044071] dark:text-white">Withdrawal Details</h3>
+              
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-[#262626]">
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Method</span>
+                  <p className="font-bold text-lg theme-text-primary">{selectedWithdrawal.payment_method}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Amount</span>
+                  <p className="font-black text-lg text-[#F24C20]">₹{selectedWithdrawal.amount?.toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="text-sm font-black uppercase tracking-widest text-[#F24C20]">Transfer Information</h4>
+                {selectedWithdrawal.payment_details ? (
+                  <div className="bg-gray-50 dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-[#262626] p-4 divide-y divide-gray-200 dark:divide-[#262626]">
+                    {selectedWithdrawal.payment_method === 'Bank Transfer' ? (
+                      <>
+                        <DetailItem label="Account Holder" value={selectedWithdrawal.payment_details.account_holder_name} />
+                        <DetailItem label="Account Number" value={selectedWithdrawal.payment_details.account_number} />
+                        <DetailItem label="IFSC Code" value={selectedWithdrawal.payment_details.ifsc_code} />
+                        <DetailItem label="Bank Name" value={selectedWithdrawal.payment_details.bank_name} />
+                      </>
+                    ) : (
+                      <DetailItem label="UPI ID" value={selectedWithdrawal.payment_details.upi_id} />
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
+                    Error: Payment details missing for this request.
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-6 border-t border-gray-200 dark:border-[#262626] space-y-4">
+                <p className="text-xs text-gray-500">
+                  Verification Step: Please transfer the amount manually using your banking portal before marking this request as "Approved".
+                </p>
+                {selectedWithdrawal.status === 'pending' && (
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => handleActionClick(selectedWithdrawal._id, 'approved')}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      Mark as Paid
+                    </button>
+                    <button 
+                      onClick={() => handleActionClick(selectedWithdrawal._id, 'rejected')}
+                      className="px-8 border border-red-500 text-red-500 font-bold py-3 rounded-xl hover:bg-red-500/5 transition-all flex items-center justify-center gap-2"
+                    >
+                      <X className="w-5 h-5" />
+                      Reject Request
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 text-[#044071] dark:text-white">
+                Withdraw Requests
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Review and process credit-based withdrawal requests from live data
+              </p>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Pending Requests', value: withdrawals.filter(w => w.status === 'pending').length, icon: Wallet, color: 'bg-yellow-500' },
+              { label: 'Total Approved', value: withdrawals.filter(w => w.status === 'approved').length, icon: CheckCircle, color: 'bg-green-500' },
+              { label: 'Rejected', value: withdrawals.filter(w => w.status === 'rejected').length, icon: X, color: 'bg-red-500' },
+              { label: 'Total Volume', value: `₹${withdrawals.reduce((acc, curr) => acc + (curr.amount || 0), 0).toLocaleString()}`, icon: IndianRupee, color: 'bg-[#044071]' }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white dark:bg-[#1a1a1a] p-6 rounded-xl border border-gray-200 dark:border-[#262626]"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
+                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                  </div>
+                  <div className={`${stat.color} p-3 rounded-lg`}>
+                    <stat.icon className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Withdraw Requests Table */}
+          <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#262626] overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-[#0a0a0a]">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">User</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Wallet Balance</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Requested Amount</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Method</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-[#262626]">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center">
+                        <Loader2 className="w-10 h-10 text-[#F24C20] animate-spin mx-auto mb-2" />
+                        <p className="text-gray-500">Loading requests...</p>
+                      </td>
+                    </tr>
+                  ) : withdrawals.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                        No withdrawal requests found.
+                      </td>
+                    </tr>
+                  ) : (
+                    withdrawals.map((request, index) => (
+                      <motion.tr
+                        key={request._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="hover:bg-gray-50 dark:hover:bg-[#262626]/50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="font-medium">{request.user?.full_name || 'Deleted User'}</div>
+                          <div className="text-xs text-gray-500">{request.user?.email}</div>
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-gray-500">
+                          ₹{request.user?.wallet_balance?.toLocaleString() || 0}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-[#F24C20]">
+                          ₹{request.amount?.toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium uppercase">{request.payment_method}</td>
+                        <td className="px-6 py-4 text-sm">
+                          {new Date(request.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'approved'
+                              ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                              : request.status === 'pending'
+                                ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                                : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                            }`}>
+                            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            {request.status === 'pending' && (
+                              <>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleActionClick(request._id, 'approved')}
+                                  className="p-2 hover:bg-green-100 dark:hover:bg-green-900/20 rounded-lg"
+                                  title="Approve"
+                                >
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleActionClick(request._id, 'rejected')}
+                                  className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg"
+                                  title="Reject"
+                                >
+                                  <X className="w-4 h-4 text-red-600" />
+                                </motion.button>
+                              </>
+                            )}
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => {
+                                setSelectedWithdrawal(request);
+                              }}
+                              className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded-lg"
+                              title="View Details"
+                            >
+                              <Eye className="w-4 h-4 text-blue-600" />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => {
+                                setAdjustingUser(request.user);
+                                setShowAdjustModal(true);
+                              }}
+                              className="p-2 hover:bg-orange-100 dark:hover:bg-orange-900/20 rounded-lg"
+                              title="Add Bonus / Adjust Balance"
+                            >
+                              <PlusCircle className="w-4 h-4 text-orange-600" />
+                            </motion.button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Confirmation Modal */}
       <AnimatePresence>
@@ -289,89 +407,6 @@ export function WithdrawRequests() {
                 >
                   Confirm
                 </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Details Modal */}
-      <AnimatePresence>
-        {showDetailsModal && selectedWithdrawal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowDetailsModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-4xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl dark:border-[#262626] dark:bg-[#161616]"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-[#044071] dark:text-white">Payment Details</h3>
-                <button onClick={() => setShowDetailsModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-full">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-xl border border-gray-200 dark:border-[#262626]">
-                   <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Method</p>
-                      <p className="font-bold text-lg">{selectedWithdrawal.payment_method}</p>
-                   </div>
-                   <div>
-                      <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Amount</p>
-                      <p className="font-black text-lg text-[#F24C20]">₹{selectedWithdrawal.amount?.toLocaleString()}</p>
-                   </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="text-sm font-black uppercase tracking-widest text-[#F24C20]">Transfer Information</h4>
-                  {selectedWithdrawal.payment_details ? (
-                    <div className="grid grid-cols-1 gap-4">
-                      {selectedWithdrawal.payment_method === 'Bank Transfer' ? (
-                        <>
-                          <DetailItem label="Account Holder" value={selectedWithdrawal.payment_details.account_holder_name} />
-                          <DetailItem label="Account Number" value={selectedWithdrawal.payment_details.account_number} />
-                          <DetailItem label="IFSC Code" value={selectedWithdrawal.payment_details.ifsc_code} />
-                          <DetailItem label="Bank Name" value={selectedWithdrawal.payment_details.bank_name} />
-                        </>
-                      ) : (
-                        <DetailItem label="UPI ID" value={selectedWithdrawal.payment_details.upi_id} />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
-                      Error: Payment details missing for this legacy request.
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-6 border-t border-gray-100 dark:border-[#262626]">
-                   <p className="text-[10px] text-gray-500 mb-4">Verification Step: Please transfer the amount manually using your banking portal before marking this request as "Approved".</p>
-                   {selectedWithdrawal.status === 'pending' && (
-                     <div className="flex gap-3">
-                        <button 
-                          onClick={() => { setShowDetailsModal(false); handleActionClick(selectedWithdrawal._id, 'approved'); }}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all"
-                        >
-                          Mark as Paid
-                        </button>
-                        <button 
-                          onClick={() => { setShowDetailsModal(false); handleActionClick(selectedWithdrawal._id, 'rejected'); }}
-                          className="px-6 border border-red-500 text-red-500 font-bold py-3 rounded-xl hover:bg-red-500/5 transition-all"
-                        >
-                          Reject
-                        </button>
-                     </div>
-                   )}
-                </div>
               </div>
             </motion.div>
           </motion.div>

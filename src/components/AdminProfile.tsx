@@ -184,7 +184,7 @@ export function AdminProfile() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={saving}
-            className="bg-[#044071] hover:bg-[#033056] text-white px-8 py-3 rounded-xl font-medium flex items-center gap-2 disabled:opacity-60 transition-all"
+            className="bg-[#F24C20] hover:bg-[#d43a12] text-white px-8 py-3 rounded-xl font-medium flex items-center gap-2 disabled:opacity-60 transition-all shadow-md"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             Save Profile

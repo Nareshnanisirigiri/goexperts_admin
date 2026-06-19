@@ -129,21 +129,38 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-            {/* Background Decor */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#F24C20]/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#044071]/20 rounded-full blur-[120px]" />
-            </div>
+        <div className="login-workspace min-h-screen">
+            <motion.section
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="login-story"
+            >
+                <div className="login-story-brand">
+                    <div><img src={logoUrl} alt="Go Experts" /></div>
+                    <span>Go Experts</span>
+                </div>
+                <div className="login-story-copy">
+                    <span>ADMINISTRATIVE WORKSPACE</span>
+                    <h1>Run the platform with a clearer point of view.</h1>
+                    <p>People, marketplace activity, content, trust, and revenue in one focused operating space.</p>
+                </div>
+                <div className="login-story-footer">
+                    <ShieldCheck className="w-5 h-5" />
+                    <div>
+                        <strong>Protected access</strong>
+                        <span>Administrator sessions are secured and monitored.</span>
+                    </div>
+                </div>
+            </motion.section>
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md relative z-10"
+                className="login-panel"
             >
-                <div className="bg-[#1a1a1a] border border-[#262626] rounded-3xl p-8 shadow-2xl backdrop-blur-sm">
+                <div className="login-card">
                     {/* Logo & Header */}
-                    <div className="text-center mb-8">
+                    <div className="login-heading text-center mb-8">
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -152,8 +169,9 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                         >
                             <img src={logoUrl} alt="Go Experts" className="h-16 w-auto object-contain" />
                         </motion.div>
-                        <h1 className="text-2xl font-bold text-white mb-2">Admin Control Center</h1>
-                        <p className="text-gray-400 text-sm">Sign in to manage the Go Experts platform</p>
+                        <span>WELCOME BACK</span>
+                        <h1 className="text-2xl font-bold mb-2">Sign in to your workspace</h1>
+                        <p className="text-sm">Use your administrator credentials to continue.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -218,7 +236,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                             whileTap={{ scale: 0.98 }}
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-[#F24C20] hover:bg-[#d43a12] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#F24C20]/10 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                            className="login-submit w-full bg-[#F24C20] hover:bg-[#d43a12] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -232,7 +250,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                     </form>
 
                     {/* Footer Info */}
-                    <div className="mt-8 pt-6 border-t border-[#262626] text-center">
+                    <div className="login-help mt-8 pt-6 text-center">
                         <p className="text-gray-500 text-xs">
                             This is a restricted area. All activities are logged and monitored.
                         </p>

@@ -178,7 +178,7 @@ export default function App() {
     return page || 'dashboard';
   };
 
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(getPageFromUrl());
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -420,7 +420,7 @@ export default function App() {
       case 'email-settings':
         return <EmailSettings onNavigate={handleNavigate} />;
       case 'registration-steps':
-        return <RegistrationSteps />;
+        return <RegistrationSteps onNavigate={handleNavigate} />;
 
 
       // Taxonomies

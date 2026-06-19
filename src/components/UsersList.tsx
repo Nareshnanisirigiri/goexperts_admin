@@ -572,17 +572,17 @@ export function UsersList({ onSelectUser, onVerifyUser, onAddUser, onNavigateTab
               onChange={(e) => {
                 goToStatusTab(e.target.value as UserFilterStatus);
               }}
-              style={{ backgroundColor: '#000000', color: '#ffffff', colorScheme: 'dark' }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ backgroundColor: '#ffffff', color: '#1f2937', colorScheme: 'light' }}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-[#F24C20] font-semibold transition-all cursor-pointer"
             >
-              <option value="all" className="bg-black text-white">All Status</option>
-              <option value="new" className="bg-black text-white">New Users</option>
-              <option value="active" className="bg-black text-white">Active Users</option>
-              <option value="kyc_not_verified" className="bg-black text-white">KYC Not Verified</option>
-              <option value="suspended" className="bg-black text-white">Suspended</option>
-              <option value="blocked" className="bg-black text-white">Blocked</option>
-              <option value="deleted" className="bg-black text-white">Soft Deleted</option>
-              <option value="paid" className="bg-black text-white">Subscription / Paid Users</option>
+              <option value="all" className="bg-white text-gray-900">All Status</option>
+              <option value="new" className="bg-white text-gray-900">New Users</option>
+              <option value="active" className="bg-white text-gray-900">Active Users</option>
+              <option value="kyc_not_verified" className="bg-white text-gray-900">KYC Not Verified</option>
+              <option value="suspended" className="bg-white text-gray-900">Suspended</option>
+              <option value="blocked" className="bg-white text-gray-900">Blocked</option>
+              <option value="deleted" className="bg-white text-gray-900">Soft Deleted</option>
+              <option value="paid" className="bg-white text-gray-900">Subscription / Paid Users</option>
             </select>
           </div>
 
@@ -593,15 +593,15 @@ export function UsersList({ onSelectUser, onVerifyUser, onAddUser, onNavigateTab
                 setCurrentPage(1);
                 setFilterRole(e.target.value as any);
               }}
-              style={{ backgroundColor: '#000000', color: '#ffffff', colorScheme: 'dark' }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ backgroundColor: '#ffffff', color: '#1f2937', colorScheme: 'light' }}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-[#F24C20] font-semibold transition-all cursor-pointer"
             >
-              <option value="all" className="bg-black text-white">All Roles</option>
-              <option value="client" className="bg-black text-white">Client</option>
-              <option value="freelancer" className="bg-black text-white">Freelancer</option>
-              <option value="investor" className="bg-black text-white">Investor</option>
-              <option value="startup_creator" className="bg-black text-white">Startup Idea Creator</option>
-              <option value="admin" className="bg-black text-white">Admin</option>
+              <option value="all" className="bg-white text-gray-900">All Roles</option>
+              <option value="client" className="bg-white text-gray-900">Client</option>
+              <option value="freelancer" className="bg-white text-gray-900">Freelancer</option>
+              <option value="investor" className="bg-white text-gray-900">Investor</option>
+              <option value="startup_creator" className="bg-white text-gray-900">Startup Idea Creator</option>
+              <option value="admin" className="bg-white text-gray-900">Admin</option>
             </select>
           </div>
         </div>

@@ -60,7 +60,7 @@ function KPICard({ title, value, prefix = '', suffix = '', change, icon, color, 
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5 }}
       whileHover={{ y: -4, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-      className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]"
+      className="dashboard-kpi bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626]"
     >
       <div className="flex items-start justify-between mb-4">
         <div style={{ backgroundColor: bgColor }} className="p-3 rounded-xl">
@@ -72,7 +72,7 @@ function KPICard({ title, value, prefix = '', suffix = '', change, icon, color, 
         </div>
       </div>
       <h3 className="text-gray-600 dark:text-gray-400 text-sm mb-2">{title}</h3>
-      <div className="text-3xl font-bold mb-4 text-[#044071] dark:text-white">
+      <div className="text-3xl font-bold mb-4 text-[#F24C20]">
         {prefix}
         <AnimatedCounter value={value} />
         {suffix}
@@ -168,7 +168,7 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl p-8 text-white"
+        className="dashboard-hero relative overflow-hidden rounded-2xl p-8 text-white"
         style={{
           background: 'linear-gradient(135deg, #F24C20 0%, #d43a12 50%, #044071 100%)'
         }}
@@ -307,13 +307,13 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
           className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626] cursor-pointer"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(242, 76, 32, 0.1)' }}>
-              <Activity className="w-6 h-6 text-[#F24C20]" />
+            <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(16, 36, 62, 0.1)' }}>
+              <Activity className="w-6 h-6 text-[#10243E]" />
             </div>
-            <span className="text-xs px-3 py-1 rounded-full" style={{ backgroundColor: 'rgba(242, 76, 32, 0.1)', color: '#F24C20' }}>Today</span>
+            <span className="text-xs px-3 py-1 rounded-full" style={{ backgroundColor: 'rgba(16, 36, 62, 0.1)', color: '#10243E' }}>Today</span>
           </div>
           <h3 className="text-gray-600 dark:text-gray-400 text-sm mb-2">New Users Today</h3>
-          <div className="text-3xl font-bold mb-2 text-[#044071] dark:text-white">
+          <div className="text-3xl font-bold mb-2 text-[#F24C20]">
             <AnimatedCounter value={23} />
           </div>
           <button 
@@ -339,7 +339,7 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
             <span className="text-xs bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 px-3 py-1 rounded-full">Pending</span>
           </div>
           <h3 className="text-gray-600 dark:text-gray-400 text-sm mb-2">Pending Approvals</h3>
-          <div className="text-3xl font-bold mb-2 text-[#044071] dark:text-white">
+          <div className="text-3xl font-bold mb-2 text-[#F24C20]">
             <AnimatedCounter value={17} />
           </div>
           <button 
@@ -365,7 +365,7 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
             <span className="text-xs bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-3 py-1 rounded-full">Urgent</span>
           </div>
           <h3 className="text-gray-600 dark:text-gray-400 text-sm mb-2">Open Disputes</h3>
-          <div className="text-3xl font-bold mb-2 text-[#044071] dark:text-white">
+          <div className="text-3xl font-bold mb-2 text-[#F24C20]">
             <AnimatedCounter value={8} />
           </div>
           <button 
@@ -385,13 +385,13 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
           className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-gray-200 dark:border-[#262626] cursor-pointer"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl bg-[rgba(4,64,113,0.1)] dark:bg-blue-950/30">
+            <div className="p-3 rounded-xl bg-[rgba(236, 88, 20, 0.1)] dark:bg-blue-950/30">
               <DollarSign className="w-6 h-6 text-[#044071] dark:text-blue-400" />
             </div>
             <span className="text-xs px-3 py-1 rounded-full bg-[rgba(4,64,113,0.1)] dark:bg-blue-950/30 text-[#044071] dark:text-blue-400">This Month</span>
           </div>
           <h3 className="text-gray-600 dark:text-gray-400 text-sm mb-2">Platform Commission</h3>
-          <div className="text-3xl font-bold mb-2 text-[#044071] dark:text-white">
+          <div className="text-3xl font-bold mb-2 text-[#F24C20]">
             ₹<AnimatedCounter value={8250} />
           </div>
           <button 
@@ -417,7 +417,7 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
               <h3 className="text-lg font-bold text-[#044071] dark:text-white mb-1">Revenue Trend</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">Monthly revenue overview</p>
             </div>
-            <select className="px-3 py-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#F24C20]">
+            <select className="px-3 py-2 rounded-lg border border-gray-200 dark:border-[#262626] bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-[#10243E]">
               <option>Last 7 Months</option>
               <option>Last 12 Months</option>
               <option>This Year</option>
@@ -534,15 +534,15 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
                 className="pb-4 border-b border-gray-100 dark:border-[#262626] last:border-0"
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(242, 76, 32, 0.1)' }}>
-                    <Activity className="w-4 h-4 text-[#F24C20]" />
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(16, 36, 62, 0.1)' }}>
+                    <Activity className="w-4 h-4 text-[#10243E]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium mb-1">{activity.user}</p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{activity.time}</p>
                     <button 
                       onClick={() => handleActivityClick(activity)}
-                      className="text-xs text-[#F24C20] hover:text-[#d43a12] font-medium text-left"
+                      className="text-xs text-[#10243E] hover:text-[#294A70] font-medium text-left"
                     >
                       {activity.action} →
                     </button>
@@ -577,9 +577,9 @@ export function Dashboard({ onNavigate, onSelectUser, onSelectProject, onSelectD
               whileTap={{ scale: 0.95 }}
               onClick={() => action.page && onNavigate?.(action.page)}
               className={`${action.primary
-                ? 'bg-[#F24C20] hover:bg-[#d43a12] text-white'
+                ? 'bg-[#F24C20] hover:bg-[#d43a12] text-white shadow-md shadow-orange-500/10'
                 : 'bg-white dark:bg-[#262626] hover:bg-gray-50 dark:hover:bg-[#1a1a1a] border border-[#044071] text-[#044071] dark:text-white'
-                } rounded-xl p-4 text-sm font-medium transition-colors`}
+                } rounded-xl p-4 text-sm font-medium transition-all duration-200`}
             >
               {action.label}
             </motion.button>
