@@ -136,7 +136,15 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 className="login-story"
             >
                 <div className="login-story-brand">
-                    <div><img src={logoUrl} alt="Go Experts" /></div>
+                    <div>
+                        <img 
+                            src={logoUrl} 
+                            alt="Go Experts" 
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = logoFallback;
+                            }}
+                        />
+                    </div>
                     <span>Go Experts</span>
                 </div>
                 <div className="login-story-copy">

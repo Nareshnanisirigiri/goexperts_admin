@@ -200,21 +200,29 @@ export function AddUser({ onNavigate, onBack }: AddUserProps) {
               <div className="flex flex-col items-center">
                 <div className="relative w-40 h-40 mb-6">
                   {profileImage ? (
-                    <img src={profileImage} alt="Profile" className="w-full h-full rounded-full object-cover border-2 border-gray-200 dark:border-[#262626]" />
+                    <>
+                      <img src={profileImage} alt="Profile" className="w-full h-full rounded-full object-cover border-2 border-gray-200 dark:border-[#262626]" />
+                      <label className="absolute bottom-1 right-1 bg-[#F24C20] hover:bg-[#d43a12] text-white p-3 rounded-full cursor-pointer transition-all shadow-lg shadow-[#F24C20]/20 hover:scale-105">
+                        <Upload className="w-4 h-4" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </>
                   ) : (
-                    <div className="w-full h-full rounded-full bg-gray-50 dark:bg-[#262626] border-2 border-dashed border-gray-200 dark:border-[#262626] flex flex-col items-center justify-center gap-2 group hover:border-[#F24C20]/50 transition-all">
+                    <label className="w-full h-full rounded-full bg-gray-50 dark:bg-[#262626] border-2 border-dashed border-gray-200 dark:border-[#262626] flex flex-col items-center justify-center gap-2 group hover:border-[#F24C20]/50 transition-all cursor-pointer">
                       <Upload className="w-8 h-8 text-gray-400 group-hover:text-[#F24C20] transition-colors" />
-                    </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
                   )}
-                  <label className="absolute bottom-1 right-1 bg-[#F24C20] hover:bg-[#d43a12] text-white p-3 rounded-full cursor-pointer transition-all shadow-lg shadow-[#F24C20]/20 hover:scale-105">
-                    <Upload className="w-4 h-4" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
                 </div>
                 <p className="text-[10px] text-gray-500 text-center font-bold uppercase tracking-widest leading-relaxed">
                   Identity Visualization Upload
@@ -537,7 +545,7 @@ export function AddUser({ onNavigate, onBack }: AddUserProps) {
                 )}
 
                 {/* Password Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-8 border-t border-gray-100 dark:border-[#262626]">
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-2">
                       Access Key <span className="text-[#F24C20]">*</span>
@@ -578,7 +586,7 @@ export function AddUser({ onNavigate, onBack }: AddUserProps) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-10">
+              <div className="flex flex-col sm:flex-row gap-4 mt-16">
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.01 }}

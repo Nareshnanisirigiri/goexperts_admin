@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../lib/api';
 import logoFallback from '../assets/logo.png';
 import { useSiteSettings } from '../context/SiteSettingsContext';
@@ -187,6 +187,29 @@ export function AdminLayout({
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['users', 'projects', 'gigs', 'transactions', 'subscriptions', 'disputes', 'content', 'taxonomies', 'startup-ideas']);
   const [showAdminCard, setShowAdminCard] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const adminCardRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const notificationsDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (adminCardRef.current && !adminCardRef.current.contains(event.target as Node)) {
+        setShowAdminCard(false);
+      }
+      if (
+        notificationsRef.current && 
+        !notificationsRef.current.contains(event.target as Node) &&
+        (!notificationsDropdownRef.current || !notificationsDropdownRef.current.contains(event.target as Node))
+      ) {
+        setShowNotifications(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{
     users: any[];
@@ -510,7 +533,14 @@ export function AdminLayout({
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-2">
-              <img src={logoUrl} alt="Go Experts" className="h-8 w-auto" />
+              <img 
+                src={logoUrl} 
+                alt="Go Experts" 
+                className="h-8 w-auto" 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = logoFallback;
+                }}
+              />
             </div>
           </div>
 
@@ -662,11 +692,14 @@ export function AdminLayout({
             </button>
 
             <div
+              ref={notificationsRef}
               className="relative"
-              onMouseEnter={() => setShowNotifications(true)}
-              onMouseLeave={() => setShowNotifications(false)}
             >
               <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowNotifications(prev => !prev);
+                }}
                 className={`relative p-2 hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg transition-colors ${showNotifications ? 'bg-gray-100 dark:bg-[#262626]' : ''}`}
               >
                 <Bell className="w-5 h-5" />
@@ -684,10 +717,12 @@ export function AdminLayout({
             </div>
 
              <div
+              ref={adminCardRef}
               className="relative flex items-center gap-2 pl-3 border-l dark:border-[#262626] cursor-pointer overflow-visible"
-              onMouseEnter={() => setShowAdminCard(true)}
-              onMouseLeave={() => setShowAdminCard(false)}
-              onClick={() => onNavigate('admin-profile')}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAdminCard(prev => !prev);
+              }}
             >
               <img
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${adminUser?.full_name || 'Admin'}`}
@@ -727,9 +762,10 @@ export function AdminLayout({
                           setShowAdminCard(false);
                           onNavigate('admin-profile');
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-gray-200 hover:bg-zinc-800 rounded-xl text-sm font-medium transition-colors mb-1"
+                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-zinc-800 rounded-xl text-sm font-medium transition-colors mb-1"
+                        style={{ color: '#e5e7eb' }}
                       >
-                        <Settings className="w-4 h-4" />
+                        <Settings className="w-4 h-4" style={{ color: '#e5e7eb' }} />
                         Settings
                       </button>
                       <button
@@ -751,12 +787,11 @@ export function AdminLayout({
       <AnimatePresence>
         {showNotifications && (
           <motion.div
+            ref={notificationsDropdownRef}
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             className="bg-[#1a1a1a] border border-[#333] rounded-2xl shadow-2xl overflow-hidden"
-            onMouseEnter={() => setShowNotifications(true)}
-            onMouseLeave={() => setShowNotifications(false)}
             style={{
               position: 'fixed',
               top: '80px',

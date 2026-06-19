@@ -272,7 +272,8 @@ export function FAQsManagement() {
                                         <motion.button 
                                             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                             onClick={resetForm} 
-                                            className="w-[130px] h-12 flex items-center justify-center gap-2 rounded-2xl border border-gray-200 dark:border-[#262626] text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-[#262626] transition-all"
+                                            className="flex items-center justify-center px-8 rounded-xl border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-semibold"
+                                            style={{ height: '48px' }}
                                         >
                                             Cancel
                                         </motion.button>
@@ -280,41 +281,36 @@ export function FAQsManagement() {
                                             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                             onClick={handleSubmit}
                                             disabled={saving}
-                                            className="w-[130px] h-12 flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#E23C10] disabled:opacity-60 text-white rounded-2xl font-bold shadow-lg shadow-orange-500/10 transition-all"
+                                            className="flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white px-8 rounded-xl font-semibold text-sm shadow-md"
+                                            style={{ height: '48px' }}
                                         >
-                                            {saving ? 'Saving...' : <><CheckCircle className="w-5 h-5" /> {editingFAQ ? 'Update' : 'Create'}</>}
+                                            {saving ? 'Saving...' : <><CheckCircle className="w-4 h-4" /> {editingFAQ ? 'Update' : 'Create'}</>}
                                         </motion.button>
                                     </div>
                                 </div>
                             </motion.div>
                         ) : (
                             <motion.div
-                                key="banner-closed"
                                 initial={{ opacity: 0, scale: 0.98 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.98 }}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
                                 onClick={openAdd}
-                                className="relative overflow-hidden bg-white/80 dark:bg-[#1a1a1a]/80 border border-orange-500/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group animate-none cursor-pointer transition-all duration-300 shadow-sm max-w-3xl"
+                                className="relative overflow-hidden bg-white dark:bg-[#1a1a1a] border border-orange-500/20 rounded-2xl p-6 flex items-start gap-4 group cursor-pointer transition-all duration-300 shadow-sm max-w-3xl hover:shadow-md"
                             >
                                 <div className="absolute right-0 top-0 -translate-y-12 translate-x-12 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-orange-500/20 transition-all duration-500" />
-                                <div>
-                                    <h2 className="text-lg font-bold text-[#F24C20] dark:text-white flex items-center gap-2">
-                                        <Zap className="w-5 h-5 text-[#F24C20]" />
+                                <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0 transition-colors group-hover:bg-orange-500/20">
+                                    <Zap className="w-6 h-6 text-[#F24C20]" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h2 className="text-lg font-bold text-[#F24C20] dark:text-white mb-1 transition-colors">
                                         Create New FAQ
                                     </h2>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md" style={{ marginLeft: '28px', marginTop: '10px' }}>Add clear, helpful answers to help users navigate and solve common platform issues quickly.</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                                        Add clear, helpful answers to help users navigate and solve common platform issues quickly.
+                                    </p>
                                 </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={(e) => { e.stopPropagation(); openAdd(); }}
-                                    className="w-fit px-6 h-12 bg-[#F24C20] hover:bg-[#E23C10] text-white rounded-full font-bold shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 ml-auto mr-2"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                    Add FAQ
-                                </motion.button>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -369,7 +365,7 @@ export function FAQsManagement() {
                                         onClick={() => setExpandedId(expandedId === faq._id ? null : faq._id)}
                                     >
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2.5 mb-2 flex-wrap ml-8">
+                                            <div className="flex items-center gap-2.5 mb-2 flex-wrap ml-8" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-semibold ${getCategoryBadge(faq.category)}`}>
                                                     {getCategoryIcon(faq.category)}
                                                     {faq.category}
@@ -380,7 +376,7 @@ export function FAQsManagement() {
                                                         Inactive
                                                     </span>
                                                 )}
-                                                <span className="text-xs text-gray-400 dark:text-gray-550 ml-auto mr-2 font-medium">
+                                                <span className="text-xs text-gray-400 dark:text-gray-550 mr-2 font-medium" style={{ marginLeft: '12px' }}>
                                                     Order: #{faq.sort_order}
                                                 </span>
                                             </div>

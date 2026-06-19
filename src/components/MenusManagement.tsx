@@ -196,17 +196,24 @@ export function MenusManagement({ onNavigate }: MenusManagementProps) {
                 <label htmlFor="newTab" className="text-sm font-medium text-gray-700 dark:text-gray-300">Open in new tab</label>
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={handleSubmit}
-                disabled={saving}
-                className="flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white h-14 px-8 rounded-2xl font-bold text-sm shadow-md transition-all duration-200"
-              >
-                <CheckCircle className="w-4 h-4" />
-                {saving ? 'Saving...' : editingItem ? 'Update Item' : 'Add Item'}
-              </motion.button>
-              <button onClick={resetForm} className="h-14 px-8 rounded-2xl border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-200">Cancel</button>
-            </div>
+             <div className="flex gap-3 mt-6">
+               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                 onClick={handleSubmit}
+                 disabled={saving}
+                 className="flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white px-8 rounded-full font-bold text-sm shadow-md transition-all duration-200"
+                 style={{ height: '48px' }}
+               >
+                 <CheckCircle className="w-4 h-4" />
+                 {saving ? 'Saving...' : editingItem ? 'Update Item' : 'Add Item'}
+               </motion.button>
+               <button 
+                 onClick={resetForm} 
+                 className="px-8 rounded-full border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-bold text-gray-700 dark:text-gray-300 transition-all duration-200"
+                 style={{ height: '48px' }}
+               >
+                 Cancel
+               </button>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>

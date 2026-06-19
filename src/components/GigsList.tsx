@@ -85,14 +85,13 @@ export function GigsList() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              style={{ backgroundColor: '#000000', color: '#ffffff', colorScheme: 'dark' }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-black text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+              className="gigs-status-select w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] cursor-pointer transition-colors"
             >
-              <option value="all" className="bg-black text-white">All Status</option>
-              <option value="pending" className="bg-black text-white">Pending</option>
-              <option value="live" className="bg-black text-white">Live</option>
-              <option value="paused" className="bg-black text-white">Paused</option>
-              <option value="closed" className="bg-black text-white">Closed</option>
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="live">Live</option>
+              <option value="paused">Paused</option>
+              <option value="closed">Closed</option>
             </select>
           </div>
         </div>

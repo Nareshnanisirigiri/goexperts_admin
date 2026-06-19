@@ -3032,14 +3032,36 @@ html {
   background: rgba(242, 76, 32, 0.5);
 }
 
-/* Projects status dropdown theme */
-.projects-status-select {
-  background-color: #1f2a44 !important;
-  color: #ffffff !important;
+/* Projects, Users and Gigs status dropdown theme */
+.admin-content select.projects-status-select,
+.admin-content select.users-status-select,
+.admin-content select.gigs-status-select {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+  color-scheme: light !important;
 }
 
-.projects-status-select option {
-  background-color: #1f2a44 !important;
+.admin-content select.projects-status-select option,
+.admin-content select.users-status-select option,
+.admin-content select.gigs-status-select option {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.dark .admin-content select.projects-status-select,
+.dark .admin-content select.users-status-select,
+.dark .admin-content select.gigs-status-select {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #262626 !important;
+  color-scheme: dark !important;
+}
+
+.dark .admin-content select.projects-status-select option,
+.dark .admin-content select.users-status-select option,
+.dark .admin-content select.gigs-status-select option {
+  background-color: #1a1a1a !important;
   color: #ffffff !important;
 }
 

@@ -374,11 +374,20 @@ export function KYCReviewPage({ userId, onBack }: KYCReviewPageProps) {
                       title="PDF Preview"
                     />
                   ) : (
-                    <img
-                      src={previewDoc.url}
-                      alt="Document Preview"
-                      className="max-w-full max-h-full object-contain rounded-lg"
-                    />
+                    <div className="relative max-w-full max-h-full flex items-center justify-center">
+                      <img
+                        src={previewDoc.url}
+                        alt="Document Preview"
+                        className="max-w-full max-h-full object-contain rounded-lg"
+                      />
+                      <button
+                        onClick={() => setPreviewDoc(null)}
+                        className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full shadow-lg backdrop-blur-sm transition-all active:scale-95 z-30 border border-white/10"
+                        title="Close Preview"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
                   )}
                 </div>
               </motion.div>

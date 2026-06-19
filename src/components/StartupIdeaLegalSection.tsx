@@ -339,7 +339,7 @@ export const StartupIdeaLegalSection: React.FC<StartupIdeaLegalSectionProps> = (
                               title={faq.is_active ? 'Hide from website' : 'Publish to website'}
                               className={`p-2 rounded-lg transition-all ${faq.is_active
                                 ? 'text-green-500 hover:bg-green-500/10'
-                                : 'text-white bg-gray-700 hover:bg-gray-600'
+                                : 'text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
                             >
                               {faq.is_active ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}

@@ -114,14 +114,13 @@ export function ProjectsList({ onSelectProject, initialFilter = 'all' }: Project
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              style={{ backgroundColor: '#000000', color: '#ffffff', colorScheme: 'dark' }}
-              className="projects-status-select w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-black text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20]"
+              className="projects-status-select w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] cursor-pointer transition-colors"
             >
-              <option value="all" className="bg-black text-white">All Status</option>
-              <option value="in_queue" className="bg-black text-white">In Queue</option>
-              <option value="approved" className="bg-black text-white">Approved</option>
-              <option value="rejected" className="bg-black text-white">Rejected</option>
-              <option value="flagged" className="bg-black text-white">Flagged</option>
+              <option value="all">All Status</option>
+              <option value="in_queue">In Queue</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="flagged">Flagged</option>
             </select>
           </div>
         </div>

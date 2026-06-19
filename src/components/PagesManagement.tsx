@@ -702,12 +702,19 @@ export function PagesManagement() {
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 onClick={handleSubmit}
                 disabled={saving}
-                className="flex items-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-semibold text-sm shadow-md"
+                className="flex items-center justify-center gap-2 bg-[#F24C20] hover:bg-[#d43a12] disabled:opacity-60 text-white px-8 rounded-xl font-semibold text-sm shadow-md"
+                style={{ height: '48px' }}
               >
                 <CheckCircle className="w-4 h-4" />
                 {saving ? 'Saving...' : editingPage ? 'Update Page' : 'Create Page'}
               </motion.button>
-              <button onClick={resetForm} className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-semibold">Cancel</button>
+              <button 
+                onClick={resetForm} 
+                className="flex items-center justify-center px-8 rounded-xl border border-gray-300 dark:border-[#262626] hover:bg-gray-50 dark:hover:bg-[#262626] text-sm font-semibold"
+                style={{ height: '48px' }}
+              >
+                Cancel
+              </button>
             </div>
           </motion.div>
         )}

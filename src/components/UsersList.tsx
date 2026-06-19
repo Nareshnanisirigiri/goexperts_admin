@@ -572,17 +572,16 @@ export function UsersList({ onSelectUser, onVerifyUser, onAddUser, onNavigateTab
               onChange={(e) => {
                 goToStatusTab(e.target.value as UserFilterStatus);
               }}
-              style={{ backgroundColor: '#ffffff', color: '#1f2937', colorScheme: 'light' }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-[#F24C20] font-semibold transition-all cursor-pointer"
+              className="users-status-select w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-[#F24C20] font-semibold transition-all cursor-pointer"
             >
-              <option value="all" className="bg-white text-gray-900">All Status</option>
-              <option value="new" className="bg-white text-gray-900">New Users</option>
-              <option value="active" className="bg-white text-gray-900">Active Users</option>
-              <option value="kyc_not_verified" className="bg-white text-gray-900">KYC Not Verified</option>
-              <option value="suspended" className="bg-white text-gray-900">Suspended</option>
-              <option value="blocked" className="bg-white text-gray-900">Blocked</option>
-              <option value="deleted" className="bg-white text-gray-900">Soft Deleted</option>
-              <option value="paid" className="bg-white text-gray-900">Subscription / Paid Users</option>
+              <option value="all">All Status</option>
+              <option value="new">New Users</option>
+              <option value="active">Active Users</option>
+              <option value="kyc_not_verified">KYC Not Verified</option>
+              <option value="suspended">Suspended</option>
+              <option value="blocked">Blocked</option>
+              <option value="deleted">Soft Deleted</option>
+              <option value="paid">Subscription / Paid Users</option>
             </select>
           </div>
 
@@ -593,15 +592,14 @@ export function UsersList({ onSelectUser, onVerifyUser, onAddUser, onNavigateTab
                 setCurrentPage(1);
                 setFilterRole(e.target.value as any);
               }}
-              style={{ backgroundColor: '#ffffff', color: '#1f2937', colorScheme: 'light' }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-[#F24C20] font-semibold transition-all cursor-pointer"
+              className="users-status-select w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F24C20] focus:border-[#F24C20] font-semibold transition-all cursor-pointer"
             >
-              <option value="all" className="bg-white text-gray-900">All Roles</option>
-              <option value="client" className="bg-white text-gray-900">Client</option>
-              <option value="freelancer" className="bg-white text-gray-900">Freelancer</option>
-              <option value="investor" className="bg-white text-gray-900">Investor</option>
-              <option value="startup_creator" className="bg-white text-gray-900">Startup Idea Creator</option>
-              <option value="admin" className="bg-white text-gray-900">Admin</option>
+              <option value="all">All Roles</option>
+              <option value="client">Client</option>
+              <option value="freelancer">Freelancer</option>
+              <option value="investor">Investor</option>
+              <option value="startup_creator">Startup Idea Creator</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
         </div>
